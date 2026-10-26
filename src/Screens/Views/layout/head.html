@@ -1,0 +1,255 @@
+  <!-- [Meta] -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="{{ APP_NAME }}">
+  <meta name="author" content="{{ APP_NAME }}">
+
+  <!-- [Favicon] icon -->
+  <link rel="icon" href="{{PUBLIC_PATH}}assets/images/favicon.svg" type="image/x-icon"> <!-- [Font] Family -->
+<link rel="stylesheet" href="{{PUBLIC_PATH}}assets/fonts/inter/inter.css" id="main-font-link" />
+<!-- [Tabler Icons] https://tablericons.com -->
+<link rel="stylesheet" href="{{PUBLIC_PATH}}assets/fonts/tabler-icons.min.css" >
+<!-- [Feather Icons] https://feathericons.com -->
+<link rel="stylesheet" href="{{PUBLIC_PATH}}assets/fonts/feather.css" >
+<!-- [Font Awesome Icons] https://fontawesome.com/icons -->
+<link rel="stylesheet" href="{{PUBLIC_PATH}}assets/fonts/fontawesome.css" >
+<!-- [Material Icons] https://fonts.google.com/icons -->
+<link rel="stylesheet" href="{{PUBLIC_PATH}}assets/fonts/material.css" >
+<!-- [Template CSS Files] -->
+<link rel="stylesheet" href="{{PUBLIC_PATH}}assets/css/style.css" id="main-style-link" >
+<link rel="stylesheet" href="{{PUBLIC_PATH}}assets/css/style-preset.css" >
+<!-- Google tag (gtag.js) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- Jquery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- Select2 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- [Jquery] [DataTables] -->
+<link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css" />
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js" ></script>
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js" ></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.bootstrap5.min.css" />
+<script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<script src="{{PUBLIC_PATH}}assets/js/plugins/apexcharts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/localization/messages_es.min.js" integrity="sha512-Kcb2OYCSBj5/343s73G4ue17xTxHhWeLwfzE8gDQh9EAbWyEt8Jh6cNgGt86XgjS0JRzIlARtVPLa+o57+HQ2g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/tinymce.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/tinymce-jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/icons/default/icons.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/models/dom/model.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/accordion/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/advlist/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/anchor/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/autolink/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/code/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/image/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/link/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/lists/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/media/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/table/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/tinymce/plugins/visualblocks/plugin.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- Datepicker -->
+<link rel="stylesheet" href="{{PUBLIC_PATH}}assets/css/plugins/datepicker-bs5.min.css">
+    <script src="{{PUBLIC_PATH}}assets/js/plugins/datepicker-full.min.js"></script>
+
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+
+    <link rel="stylesheet" type="text/css" href="{{PUBLIC_PATH}}assets/js/plugins/jquery-comments/jquery-comments.css">
+
+  <script type="text/javascript" src="{{PUBLIC_PATH}}assets/js/plugins/jquery-comments/jquery-comments.js"></script>
+
+<style>
+  @media print {
+    .noprint{display:none;}
+    .pc-container {
+    position: relative;
+    top: 0px;
+    margin-left: 0px;
+    padding:20px;
+
+    }
+  }
+  .fs-6{font-size: 0.8rem !important;}
+/*.pc-container {margin-left: 240px;}
+.pc-sidebar{width: 240px;}
+.pc-header {
+  left: 240px;
+}
+.pc-container .pc-content {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 20px;
+}*/
+.error{color:red;}
+.select2-container--bootstrap-5{
+  border: 1px solid #bec8d0;
+  padding: 2px 2px;
+  border-radius: 8px;
+}
+.select2-selection__rendered{
+  flex-wrap: wrap;
+}
+.select2-selection__choice{
+  display: inline-block;
+    vertical-align: middle;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: 3.75px;
+    margin-bottom: 3.75px;
+    background-color: var(--bs-primary);
+    border: 1px solid var(--bs-primary);
+    color: #fff;
+    word-break: break-all;
+    box-sizing: border-box;
+}
+
+.list-group.data{
+  border-radius: 2px;
+}
+.list-group.data .list-group-item {
+  padding: 12px;
+}
+.fc-event{
+  overflow: hidden;
+}
+.fc-event.text-white {
+    color: #fff!important;
+}
+ 
+.fc-h-event.text-white  .fc-event-main{
+  color: #fff!important;
+}
+
+
+ .page-title{  font-size: 1.3rem; }
+ .table.table-sm td, .table.table-sm th {padding: 0.4rem 0.4rem;}
+ h4, .h4 {font-size: 1.15rem;}
+ .card-header {padding: 0.7rem 0.7rem;}
+  .offcanvas, .offcanvas-xxl, .offcanvas-xl, .offcanvas-lg, .offcanvas-md, .offcanvas-sm{
+    --bs-offcanvas-width: 480px;
+  }
+
+  .datatable-table td, .datatable-table th, .table td, .table th {
+     white-space:normal;
+  }
+
+  .pc-header .header-wrapper {
+    background-color: #d61c38;
+    color:#fff;
+  }
+  :root {
+  --pc-header-color: #fff;
+
+  }
+  .offcanvas, .offcanvas.offcanvas-end{
+    width: 660px;
+  }
+  .pc-sidebar{
+    background-color: #fff !important;
+  }
+  .card{
+    border-radius: 4px !important;
+  }
+  .dataTables_length, .dataTables_info{
+    padding-left: 1em;
+  }
+  .dataTables_filter{
+    padding-right: 1em;
+  }
+  .form-label {
+    margin-bottom: 0.3rem;
+  }
+  .btn-sm{font-size:12px;margin-bottom:4px;}
+  .pc-header .drp-search {
+    min-width: 40rem;
+  }
+
+  .pc-sidebar .pc-link {
+    padding: 8px 8px 8px 8px;
+
+  }
+  .pc-sidebar .pc-navbar > .pc-item .pc-submenu .pc-link {
+    padding: 4px 8px 6px 24px;
+  }
+  .pc-sidebar .pc-navbar > .pc-item .pc-submenu .pc-item > .pc-link:after { 
+    display:none;
+  }
+  .pc-sidebar .pc-sub-micon {
+    margin-right: 8px;
+    height: 18px;
+    width: 18px;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+}
+.pc-sidebar .pc-micon {
+    margin-right: 8px;
+    height: 21px;
+    width: 21px;
+}
+
+.pc-container .pc-content {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+}
+.card-body {
+    padding: 8px 8px;
+}
+.page-header{
+  padding: 0px 0px;
+  min-height: 0px;
+}
+.breadcrumb{
+  margin-bottom: 8px;
+}
+body{
+  font-size:0.75rem !important;
+}
+.custom-file-button input[type=file] {
+  margin-left: -2px !important;
+}
+
+.custom-file-button input[type=file]::-webkit-file-upload-button {
+  display: none;
+}
+
+.custom-file-button input[type=file]::file-selector-button {
+  display: none;
+}
+
+.custom-file-button:hover label {
+  background-color: #dde0e3;
+  cursor: pointer;
+}
+
+
+.fc-event{
+  overflow-y: auto;
+  border-radius: 4px;
+  white-space: initial;
+  text-align: left;
+}
+
+
+
+  </style>

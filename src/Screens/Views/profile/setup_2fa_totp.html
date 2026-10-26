@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% set imenu1=-1 %}
+{% block content %}
+<div class="page-header d-print-none">
+  <div class="row g-2 align-items-center">
+    <div class="col">
+      <div class="page-pretitle">Mi perfil</div>
+    </div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h4 class="card-title"><i class="fas fa-mobile-alt"></i> Configurar autenticador</h4>
+        </div>
+        <div class="card-body">
+          {% if error is defined and error %}
+          <div class="alert alert-danger">{{ error }}</div>
+          {% endif %}
+
+          <ol>
+            <li>Da de alta la cuenta en tu aplicación de autenticación (código QR o alta manual).</li>
+            <li>Introduce el código de 6 dígitos que muestra la aplicación para confirmar.</li>
+          </ol>
+
+          <div class="text-center mb-3">
+            <img src="{{ qr_code }}" alt="Código QR" style="max-width: 300px;">
+          </div>
+
+          {# El "QR" es un SVG con el texto de la URI (ver docs/aprendizajes.md): ofrecer siempre alta manual. #}
+          <p class="text-muted mb-1">Si no puedes escanear, introduce manualmente este código:</p>
+          <p><code>{{ secret }}</code></p>
+          {% if otpauth is defined %}
+          <p class="text-muted small mb-3">URI: <code>{{ otpauth }}</code></p>
+          {% endif %}
+
+          <form method="POST" action="{{ APP_PATH }}profile/2fa-setup">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="step" value="2">
+            <input type="hidden" name="primary_method" value="totp">
+
+            <div class="mb-3">
+              <label class="form-label" for="test_code">Código de tu autenticador</label>
+              <input type="text" class="form-control" id="test_code" name="test_code" placeholder="000000"
+                     inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required autofocus>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fa-regular fa-square-check"></i>&nbsp;Verificar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+/vendor
+/uploads
+/files
+
+# Caché de Twig (se conserva la carpeta)
+/src/cache/*
+!/src/cache/views/
+/src/cache/views/*
+!/src/cache/views/.gitkeep
+
+# Secrets / private keys / certs
+*.key
+*.pfx
+*.pem
+*.p12
+/composer.phar
+
+# Variables de entorno (credenciales)
+/.env
+/.env.*
+!/.env.example
+/tests/.env.local
+
+# Herramientas y caches locales
+/.phpunit.cache/
+/.claude/settings.local.json
+.gstack/
+*.log

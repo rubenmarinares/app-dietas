@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    {% include "layout/head.html" %}
+    {{debugbar_header()|raw}}
+  </head>
+  <body class=""  data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-layout="color-header" data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme="null" >
+    <!-- [ Pre-loader ] start -->
+    <div class="loader-bg">
+      <div class="loader-track">
+        <div class="loader-fill"></div>
+      </div>
+    </div>
+    <!-- [ Pre-loader ] End -->
+      {% if logado %}
+      {% include "layout/sidebarmenu.html" %}
+      {% include "layout/header.html" %}
+
+  <!-- [ Main Content ] start -->
+  <div class="pc-container">
+    <div class="pc-content">
+      {% else %}
+  <div class="auth-main">
+    <div class="auth-wrapper v1">
+      <div class="auth-form">
+      {% endif %}
+        {# Mensajes flash (App::addmessage). Fuera del block para que ninguna plantilla hija los oculte. #}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.type == 'error' ? 'danger' : (message.type|default('info')) }} alert-dismissible fade show" role="alert">
+          {{ message.text }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+        {% endfor %}
+        {% block content %}
+        {% endblock %}
+      {% if logado %}
+    </div>
+  </div>
+      {% include "layout/footer.html" %}
+      {% else %}
+      </div>
+    </div>
+  </div>
+      {% endif %}
+  {% include "layout/foot.html" %}
+  {{debugbar()|raw}}
+
+  </body>
+</html>

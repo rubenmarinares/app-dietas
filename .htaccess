@@ -1,0 +1,28 @@
+# --- Bloqueo de ficheros sensibles ---
+# El .env vive en el DOCUMENT_ROOT y las RewriteCond de abajo llevan !-f, por lo
+# que Apache lo serviría como texto plano. Denegar acceso web explícitamente.
+<FilesMatch "(^\.env|^\.git|\.key$|\.pem$|\.pfx$|\.p12$|\.bak$|\.sql$|\.md$|^composer\.(json|lock)$|^phpunit\.xml$)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Carpetas que nunca deben servirse por web (código, tests, herramientas, migraciones).
+RedirectMatch 404 ^/(src|tests|tools|migrations|vendor|docs|uploads)(/|$)
+
+RewriteEngine on
+RewriteBase /
+
+# Panel de administración
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^app/(.*)$ /public/app.php?rutaurl=$1 [L,QSA]
+
+# Todo lo demás se sirve desde public/ (assets y, en el futuro, el CMS público)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /public/$1 [L,QSA]

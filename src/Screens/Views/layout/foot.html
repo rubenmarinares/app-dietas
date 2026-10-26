@@ -1,0 +1,283 @@
+<!-- Required Js -->
+<script src="{{PUBLIC_PATH}}assets/js/plugins/popper.min.js"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/simplebar.min.js"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/bootstrap.min.js"></script>
+<script src="{{PUBLIC_PATH}}assets/js/fonts/custom-font.js"></script>
+<script src="{{PUBLIC_PATH}}assets/js/pcoded.js"></script>
+<script src="{{PUBLIC_PATH}}assets/js/plugins/feather.min.js"></script>
+<script>
+
+
+  document.addEventListener("DOMContentLoaded", function() {
+    if (window.location.hash) {
+        var element = document.querySelector(window.location.hash);
+        if (element) {
+            element.scrollIntoView();
+        }
+    }
+  });
+
+</script>
+<script >
+  $(function(){
+  var hash = window.location.hash;
+  hash && $('ul.nav a[href="' + hash + '"]').tab('show');
+
+  $('.nav-tabs a').click(function (e) {
+    $(this).tab('show');
+    var scrollmem = $('body').scrollTop();
+    window.location.hash = this.hash;
+    $('html,body').scrollTop(scrollmem);
+  });
+});
+
+
+
+  function opensidepanel(url,html=''){
+    if(html!=''){
+      document.getElementById('sidepanel-body').innerHTML=html;
+      var bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('sidepanel'))
+      renderplugins(document.getElementById('sidepanel'));
+      bsOffcanvas.show();
+    }else{
+          fetch(url).then(function (response) {
+            return response.text();
+          }).then(function (html) {
+            // This is the HTML from our response as a text string
+              document.getElementById('sidepanel-body').innerHTML=html;
+              var bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('sidepanel'))
+              renderplugins(document.getElementById('sidepanel'));
+              bsOffcanvas.show();
+          }).catch(function (err) {
+            // There was an error
+            console.warn('Something went wrong.', err);
+          });
+    }
+  }
+
+
+
+      document.querySelectorAll(".ajax-sidepanel").forEach((item) => {
+        item.addEventListener("click", function (e) {          
+          e.preventDefault();
+          e.stopPropagation();
+          fetch(item.getAttribute("href")).then(function (response) {
+            return response.text();
+          }).then(function (html) {
+            // This is the HTML from our response as a text string
+              document.getElementById('sidepanel-body').innerHTML=html;
+              var bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('sidepanel'))
+              renderplugins(document.getElementById('sidepanel'));
+              bsOffcanvas.show();
+          }).catch(function (err) {
+            // There was an error
+            console.warn('Something went wrong.', err);
+          });
+
+        return false;
+        });
+      });
+      document.querySelectorAll(".dataTable").forEach((item) => {
+        $(item).DataTable({
+          language: {url: 'https://cdn.datatables.net/plug-ins/2.1.4/i18n/es-ES.json'},
+          layout: {
+            topStart: {
+                pageLength: {
+                    menu: [10, 25, 50, 100 ]
+                },
+                buttons: [
+                  { extend: 'copy', className: 'btn btn-sm btn-secondary-outline' },
+                  { extend: 'excel', 
+                    className: 'btn btn-sm btn-secondary-outline',
+                    extend: 'excel',
+                    title:null,
+                    exportOptions: {
+                        columns: ':visible',
+                        format: {
+                            body: function(data, row, column, node) {
+                                return data.replace(/<.*?>/ig, "").replace('.', '').replace(',', '.');
+                            }
+        
+                        }
+                    }
+                  },
+                  { extend: 'pdf', className: 'btn btn-sm btn-secondary-outline' },
+                ]
+            },
+        },
+ 
+          });     
+      });
+      /*document.querySelectorAll(".dataTable_min").forEach((item) => {
+        $(item).DataTable({
+          language: {url: 'https://cdn.datatables.net/plug-ins/2.1.4/i18n/es-ES.json'}
+          });     
+      });*/
+
+
+      // Valida el IBAN (mod 97) en cualquier input name="iban"; vacío se permite
+      $.validator.addMethod('ibanvalid', function (value, element) {
+        var iban = String(value).toUpperCase().replace(/\s+/g, '');
+        if (iban === '') return true;
+        if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)) return false;
+        var rearranged = iban.slice(4) + iban.slice(0, 4);
+        var remainder = 0;
+        for (var i = 0; i < rearranged.length; i++) {
+          var ch = rearranged.charAt(i);
+          var digits = /[A-Z]/.test(ch) ? String(ch.charCodeAt(0) - 55) : ch;
+          for (var j = 0; j < digits.length; j++) {
+            remainder = (remainder * 10 + parseInt(digits.charAt(j), 10)) % 97;
+          }
+        }
+        return remainder === 1;
+      }, 'IBAN no válido');
+
+      $(document).ready(function() {
+        renderplugins();
+        menu_click();
+      });
+      function renderplugins(){
+        $('.dropzone').each(function () {
+          activedropzone();
+        });
+
+
+
+          document.querySelectorAll(".htmleditor").forEach((item) => {
+          $(item).tinymce({
+            license_key: 'gpl',
+            content_style: 'p{ margin: 0px;padding: 0px;}',
+            height: 240,
+            menubar: false,
+            paste_data_images: true,
+            images_upload_handler: function (blobInfo, success, failure) {
+                const base64str =
+                  "data:" +
+                  blobInfo.blob().type +
+                  ";base64," +
+                  blobInfo.base64();
+                  
+                success(base64str);
+              },
+            plugins: [
+              'advlist', 'anchor', 'autolink',
+              'code', 'image',  'link', 'lists','paste', 'table',
+            ],
+            toolbar: 'bold italic underline  |  link image | table  | code  ',
+  
+          });
+        });
+        // add event to checkeliminar_check when clicked enable or disable the checkeliminar button
+        console.log('renderplugins');
+        $('.moneda').keyup(function (num) {
+          var value = $(this).val();
+          $(this).val(value.replace(/\./i, ''));
+        });
+        $('form').each(function () {
+              $(this).validate();
+              $(this).find('input[name="iban"]').each(function () {
+                $(this).rules('add', { ibanvalid: true });
+              });
+        });
+        $('.select2').each(function () {
+            $(this).select2({
+                theme: 'bootstrap-5',
+                dropdownParent: $(this).parent(),
+            });
+        });
+        $('.select2_noparent').each(function () {
+            $(this).select2({
+                theme: 'bootstrap-5',
+            });
+        });
+
+        var delbuttons=document.getElementsByClassName("checkeliminar_check")
+        Array.from(delbuttons).forEach((item) => {
+          item.addEventListener("click", function (e) {
+            // get child button from parent
+            item.parentElement.parentElement.getElementsByClassName("checkeliminar_submit")[0].name=item.checked?'eliminar':'noeliminar';
+            item.parentElement.parentElement.getElementsByClassName("checkeliminar_submit")[0].disabled=!item.checked;
+            item.parentElement.parentElement.getElementsByClassName("checkeliminar_submit")[0].classList.toggle("btn-danger");  
+            item.parentElement.parentElement.getElementsByClassName("checkeliminar_submit")[0].classList.toggle("btn-outline-danger");  
+            
+          });
+        });
+        Array.from(document.getElementsByClassName("pc-datepicker")).forEach((item) => {
+        picker = new Datepicker(item, {
+          format:'dd/mm/yyyy',
+          buttonClass: 'btn'
+        });
+      });
+      }      
+</script>
+      <script>
+         // polyfill for serialize object function.
+        $.fn.serializeObject = function()
+        {
+            var o = {};
+            var a = this.serializeArray();
+            $.each(a, function() {
+                if (o[this.name]) {
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value || '');
+                } else {
+                    o[this.name] = this.value || '';
+                }
+            });
+            return o;
+        };
+        </script>
+<script type="text/javascript">
+
+  function activedropzone(form){
+
+     var formelement = $('#'+form);
+    formmethod = formelement.attr('method');
+    formurl = formelement.attr('action');
+    
+
+    Dropzone.autoDiscover = false;
+    myDropzone=new Dropzone("#edit",{
+          clickable: ".dropzone",
+          paramName: "file", 
+          url: formurl,
+          previewsContainer: "#previewsContainer",
+          uploadMultiple: false,
+          autoProcessQueue: false,
+
+          init() {
+            var myDropzone = this;
+            this.element.querySelector("[type=submit]").addEventListener("click", function(e){
+              e.preventDefault();
+              e.stopPropagation();
+              // get form element from event
+              var formelement = $(e.target).closest('form')[0].id;
+              $("#"+formelement).validate();
+              if ($("#"+formelement).valid() == true) { 
+                if (myDropzone.getQueuedFiles().length > 0) {    
+                  console.log('files to upload');
+                  myDropzone.processQueue();  
+                } else {      
+                  console.log('no files to upload');
+                  $("#"+formelement).submit();
+                }                                    
+              }          
+            });
+          }
+        });
+        myDropzone.on("queuecomplete", function(file) {
+          window.location.reload();
+        });
+
+
+  }
+
+</script>
+
+
+<div class="offcanvas  offcanvas-end" style="    overflow-y: auto;" tabindex="-1" id="sidepanel" aria-labelledby="sidepanel">
+  <div class="offcanvas-body" id="sidepanel-body" >
+  </div>
+</div>

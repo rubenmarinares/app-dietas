@@ -1,0 +1,104 @@
+<!-- [ Sidebar Menu ] start -->
+<nav class="pc-sidebar noprint">
+  <div class="navbar-wrapper">
+    <div class="m-header">
+      <a href="{{APP_PATH}}index" class="b-brand text-primary">
+        <!-- ========   Change your logo from here   ============ -->
+        <img src="{{PUBLIC_PATH}}assets/images/logo.png" class="img-fluid logo-lg" alt="{{ APP_NAME }}">
+
+      </a>
+    </div>
+    <div class="navbar-content">
+      <div class="simplebar-wrapper" style="margin: -10px 0px;">
+        <div class="simplebar-height-auto-observer-wrapper">
+          <div class="simplebar-height-auto-observer"></div>
+        </div>
+        <div class="simplebar-mask">
+          <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+            <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content"
+              style="height: 100%; overflow: hidden scroll;">
+              <div class="simplebar-content" style="padding: 10px 0px;">
+
+                <!--<div class="card pc-user-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <img src="{{PUBLIC_PATH}}assets/images/user/avatar-1.jpg" alt="user-image" class="user-avtar wid-45 rounded-circle" />
+            </div>
+            <div class="flex-grow-1 ms-3 me-2">
+              <h6 class="mb-0">Jonh Smith</h6>
+              <small>Administrator</small>
+            </div>
+            <a class="btn btn-icon btn-link-secondary avtar" data-bs-toggle="collapse" href="#pc_sidebar_userlink">
+              <svg class="pc-icon">
+                <use xlink:href="#custom-sort-outline"></use>
+              </svg>
+            </a>
+          </div>
+          <div class="collapse pc-user-links" id="pc_sidebar_userlink">
+            <div class="pt-3">
+              <a href="#!">
+                <i class="ti ti-user"></i>
+                <span>My Account</span>
+              </a>
+              <a href="#!">
+                <i class="ti ti-settings"></i>
+                <span>Settings</span>
+              </a>
+              <a href="#!">
+                <i class="ti ti-lock"></i>
+                <span>Lock Screen</span>
+              </a>
+              <a href="#!">
+                <i class="ti ti-power"></i>
+                <span>Logout</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>-->
+                <ul class="pc-navbar">
+                  {% for key,item in menu %}
+                  {% if item.module is defined and not can(item.module, 'read') %}
+                  {# entrada oculta: el usuario no tiene ni lectura en el módulo declarado #}
+                  {% elseif item.submenu %}
+                  <li class="pc-item pc-hasmenu {% if key==imenu1 %}active{% endif %} ">
+                    <a class="pc-link" href="#!">
+                      <span class="pc-micon"><i class="{{ item.icon }}"></i></span>
+                      <span class="pc-mtext">
+                        {{ item.label }}
+                      </span>
+                    </a>
+                    <ul class="pc-submenu">
+                      {% for keysub,itemsub in item.submenu %}
+                      <li class="pc-item {% if key==imenu1 and keysub==imenu2 %}active{% endif %}"><a class="pc-link" href="{{APP_PATH}}{{ itemsub.url }}">
+                        <span class="pc-sub-micon"><i class="{{ itemsub.icon }}"></i></span>
+                        <span>{{ itemsub.label }}</span>
+                        </a></li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                  {% else %}
+                  <li class="pc-item {% if key==imenu1 %}active{% endif %}">
+                    <a class="pc-link" href="{{APP_PATH}}{{ item.url }}">
+                      <span class="pc-micon"><i class="{{ item.icon }}"></i></span>
+                      <span class="pc-mtext">{{ item.label }}</span>
+                    </a>
+                  </li>
+                  {% endif %}
+                  {% endfor %}
+
+
+
+
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</nav>
+<!-- [ Sidebar Menu ] end -->

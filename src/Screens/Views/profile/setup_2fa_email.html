@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% set imenu1=-1 %}
+{% block content %}
+<div class="page-header d-print-none">
+  <div class="row g-2 align-items-center">
+    <div class="col">
+      <div class="page-pretitle">Mi perfil</div>
+    </div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h4 class="card-title"><i class="fas fa-envelope"></i> Configurar autenticación por correo</h4>
+        </div>
+        <div class="card-body">
+          {% if error is defined and error %}
+          <div class="alert alert-danger">{{ error }}</div>
+          {% endif %}
+
+          <p>Hemos enviado un código de 6 dígitos a tu correo electrónico. Introdúcelo para confirmar.</p>
+
+          <form method="POST" action="{{ APP_PATH }}profile/2fa-setup">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="step" value="2">
+            <input type="hidden" name="primary_method" value="email">
+
+            <div class="mb-3">
+              <label class="form-label" for="test_code">Código recibido por correo</label>
+              <input type="text" class="form-control" id="test_code" name="test_code" placeholder="000000"
+                     inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required autofocus>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fa-regular fa-square-check"></i>&nbsp;Verificar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

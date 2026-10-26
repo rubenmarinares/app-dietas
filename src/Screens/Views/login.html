@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="login-brand my-5">
+        <img src="{{ PUBLIC_PATH }}assets/images/logo-black.png" class="img-fluid logo-lg" alt="{{ APP_NAME }}">
+    </div>
+
+    {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    {% if warning %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ warning }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    <div class="card card-primary">
+        <div class="card-body">
+            {% if step == 1 %}
+                <h2 class="h5 text-center mb-4">Datos de acceso</h2>
+
+                <form method="POST" class="needs-validation" novalidate="novalidate">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <div class="form-group">
+                        <label for="user">Email</label>
+                        <input
+                            id="user"
+                            type="text"
+                            class="form-control"
+                            name="user"
+                            tabindex="1"
+                            required
+                            autofocus
+                            aria-invalid="false"
+                        >
+                        <div class="invalid-feedback">
+                            Por favor ingresa tu email
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="d-block">
+                            <label for="password" class="control-label">Contraseña</label>
+                        </div>
+                        <input
+                            id="password"
+                            type="password"
+                            class="form-control"
+                            name="password"
+                            tabindex="2"
+                            required
+                            aria-invalid="false"
+                        >
+                        <div class="invalid-feedback">
+                            Por favor ingresa tu contraseña
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
+                            Acceder
+                        </button>
+                    </div>
+                </form>
+
+            {% elseif step == 2 %}
+                <h2 class="h5 text-center mb-4">Autenticación de dos factores</h2>
+
+                <div class="alert alert-info mb-4">
+                    <p class="mb-0">Ingresa el código de tu autenticador o revisa tu correo.</p>
+                </div>
+
+                <form method="POST" class="needs-validation" novalidate="novalidate">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <div class="form-group">
+                        <label for="2fa_code" class="control-label">Código (6 dígitos)</label>
+                        <input
+                            id="2fa_code"
+                            type="text"
+                            class="form-control"
+                            name="2fa_code"
+                            tabindex="1"
+                            inputmode="numeric"
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            required
+                            autofocus
+                            aria-invalid="false"
+                        >
+                        <div class="invalid-feedback">
+                            Por favor ingresa un código válido de 6 dígitos
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="2">
+                            Verificar
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{{ APP_PATH }}login" class="text-muted small">
+                            ¿Otro usuario?
+                        </a>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

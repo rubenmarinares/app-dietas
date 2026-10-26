@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+{% set imenu1=9 %}
+{% block content %}
+<div class="page-header d-print-none">
+  <div class="">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <!-- Page pre-title -->
+        <div class="page-pretitle">
+          Configuración
+        </div>
+        <h2 class="page-title"></h2>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="">
+    <div class="row row-cards">
+      <div class="col-sm-6 col-lg-6">
+        <div class="card mb-3">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h4 class="card-title"><i class="fa-solid fa-users"></i> Usuarios</h4>
+            <div class="card-header-action">
+              {% if can() %}
+              <a class="btn btn-sm btn-primary ajax-sidepanel" href="{{APP_PATH}}settings/user/0"><i
+                  class="fa-solid fa-plus"></i> Añadir</a>
+              {% endif %}
+            </div>
+          </div>
+          <div class="card-table table-responsive">
+            {% if users %}
+            <table class="table table-vcenter">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Tipo de Usuario</th>
+                  <th>Activo</th>
+                  <th>Último Acceso</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for key, item in users %}
+                <tr>
+                  <td><a href="{{APP_PATH}}settings/user/{{item.iduser}}"
+                      class="ajax-sidepanel">{{item.name}} {{item.surname}}</a></td>
+                  <td>{{item.typeuser}}</td>
+                  <td>{{item.status_label}}</td>
+                  <td>{{ item.lastaccess | dateinttofrontend  }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-6">
+        <div class="card mb-3">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h4 class="card-title"><i class="fa-solid fa-user-shield"></i> Tipos de usuario</h4>
+            <div class="card-header-action">
+              {% if can() %}
+              <a class="btn btn-sm btn-primary ajax-sidepanel" href="{{APP_PATH}}settings/typeuser/0"><i
+                  class="fa-solid fa-plus"></i> Añadir</a>
+              {% endif %}
+            </div>
+          </div>
+          <div class="card-table table-responsive">
+            {% if typesuser %}
+            <table class="table table-vcenter">
+              <thead>
+                <tr>
+                  <th>Tipo de Usuario</th>
+                  <th>Permisos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for key, item in typesuser %}
+                <tr>
+                  <td><a href="{{APP_PATH}}settings/typeuser/{{item.idtypeuser}}"
+                      class="ajax-sidepanel">{{item.typeuser}}</a></td>
+                  <td><code>{% if item.permissions is iterable %}{{ item.permissions|json_encode }}{% else %}acceso total{% endif %}</code></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
