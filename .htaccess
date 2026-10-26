@@ -11,11 +11,46 @@
     </IfModule>
 </FilesMatch>
 
-# Carpetas que nunca deben servirse por web (código, tests, herramientas, migraciones).
-RedirectMatch 404 ^/(src|tests|tools|migrations|vendor|docs|uploads)(/|$)
+# Carpetas que nunca deben servirse por web (código, tests, herramientas, migraciones, datos privados).
+RedirectMatch 404 ^/(src|tests|tools|migrations|vendor|docs|uploads|storage)(/|$)
+
+# Ningún script que exista como fichero se ejecuta salvo los dos front controllers (public/index.php y
+# public/app.php): ni restos de la plantilla, ni public/router.php (solo para `php -S`), ni código que
+# alguien deje en el docroot. Es un <If> y no un RewriteRule: las subcarpetas con su propio
+# "RewriteEngine on" no heredan las reglas de reescritura, pero sí esto. Solo cuenta el fichero real (-f).
+# Probado en producción (Apache + PHP-FPM, Dinahosting): 403 en la raíz, en subcarpetas y con PATH_INFO.
+<If "%{REQUEST_URI} !~ m#^/public/(index|app)\.php$# && %{REQUEST_FILENAME} =~ m#\.(php\d*|phtml|pht|phps|phar|inc|cgi|pl|py|sh|shtml)$#i && -f %{REQUEST_FILENAME}">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</If>
+
+# Apache asocia por defecto ".var" a type-map (mod_negotiation): las fuentes del tema
+# "Inter-roman.var.woff2" darían 500. Se sirven como ficheros normales.
+<IfModule mod_mime.c>
+    RemoveHandler .var
+</IfModule>
 
 RewriteEngine on
 RewriteBase /
+
+# Todo por https (301). Tras el proxy TLS del hosting Apache puede ver http: se da por https si
+# lo dice mod_ssl, la variable HTTPS del entorno o la cabecera X-Forwarded-Proto. Nunca en local.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{ENV:HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$ [NC]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# Las redirecciones que genera Apache (p. ej. mod_dir al añadir la barra final a una carpeta)
+# salen con http:// tras el proxy: se reescriben a https.
+<IfModule mod_headers.c>
+    Header always edit Location "^http://(?!localhost|127\.0\.0\.1)" "https://"
+</IfModule>
+
+# Portada: explícita al front controller (sin pasar por el DirectoryIndex de /public/, que la regla de
+# scripts de arriba no reconocería).
+RewriteRule ^$ /public/index.php [L]
 
 # Panel de administración
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -23,6 +58,7 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^app/(.*)$ /public/app.php?rutaurl=$1 [L,QSA]
 
 # Todo lo demás se sirve desde public/ (assets y, en el futuro, el CMS público)
+RewriteCond %{REQUEST_URI} !^/public/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ /public/$1 [L,QSA]

@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 /**
- * Arranque común. Lo incluye un front controller (public/app.php) que ya ha
- * hecho session_start(). Orden importante:
+ * Arranque común. Lo incluye un front controller (public/app.php); la sesión la abre
+ * App (SecurityHeaders::startsession), que necesita APP_PATH. Orden importante:
  *   autoload → helpers → constants (.env) → timezone → debugbar → BD → dbschema → menú → App
  */
 ini_set('memory_limit', '512M');

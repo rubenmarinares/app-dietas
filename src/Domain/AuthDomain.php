@@ -44,11 +44,46 @@ class AuthDomain  {
     return false;
   }
 
-  /** Abre la sesión del usuario y registra el acceso. */
+  /**
+   * Abre la sesión del usuario y registra el acceso. Guarda en sesión la huella de su contraseña actual:
+   * App::__construct la compara en cada petición (sessionuser) para cerrar la sesión si cambia.
+   */
   static public function completelogin($app, array $item){
-    $app->setUser($item);
+    $row = User::get($app->db, (int) $item["iduser"]);
+    $app->setUser($item, self::fingerprint((string) ($row['password'] ?? '')));
     UserLog::record($app->db, (int) $item["iduser"], 'login');
     return $item;
+  }
+
+  /** Huella de un hash de contraseña para guardar en sesión (nunca el hash). */
+  public static function fingerprint(string $hash): string
+  {
+    return hash('sha256', 'session-fp|' . $hash);
+  }
+
+  /**
+   * ¿Sigue valiendo la sesión? (pura) Solo si el usuario existe, está activo (status 1), tiene contraseña y la
+   * huella guardada al iniciar sesión coincide con la de su contraseña actual.
+   */
+  public static function sessionvalid(?array $row, ?string $fingerprint): bool
+  {
+    if ($row === null || $row === [] || $fingerprint === null || $fingerprint === '') return false;
+    if ((int) ($row['status'] ?? 0) !== 1) return false;
+    $hash = (string) ($row['password'] ?? '');
+    return $hash !== '' && hash_equals(self::fingerprint($hash), $fingerprint);
+  }
+
+  /**
+   * Usuario actual de una sesión abierta, releído de la BBDD (sin contraseña), o null si la sesión ya no vale:
+   * usuario borrado o desactivado, o contraseña cambiada desde el login. Así un cambio de tipo de usuario
+   * también aplica en la siguiente petición.
+   */
+  public static function sessionuser($db, int $iduser, ?string $fingerprint): ?array
+  {
+    $row = User::get($db, $iduser);
+    if (!self::sessionvalid($row ?: null, $fingerprint)) return null;
+    unset($row['password']);
+    return $row;
   }
 
   /** Credenciales + apertura de sesión en un paso (sin 2FA). Útil para tests/CLI. */

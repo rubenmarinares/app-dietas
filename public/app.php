@@ -7,6 +7,6 @@
 ini_set('display_errors', '0');
 error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_WARNING);
 
-session_start();
+// La sesión la arranca App (SecurityHeaders::startsession: cookie HttpOnly/SameSite/Secure y modo estricto).
 
 require __DIR__ . '/../src/Bootstrap.php';

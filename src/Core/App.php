@@ -40,12 +40,36 @@ class App
 
   function __construct($db, $routes, $logger)
   {
+    // Cabeceras de seguridad y sesión con cookie endurecida (idempotente; no-op si ya hay sesión, p. ej. CLI/tests).
+    SecurityHeaders::send($_SERVER);
+    SecurityHeaders::startsession(APP_PATH, $_SERVER);
     $this->session=new Core\Session();
+    $ended = null;
     if( $this->session->get("logado")){
-      $this->logado = true;
-      $this->user = $this->session->get("user");
+      // Inactividad: pasadas SecurityHeaders::IDLETIMEOUT s sin peticiones se cierra la sesión.
+      $last = $this->session->get("ultimaactividad");
+      if (SecurityHeaders::idleexpired($last === null ? null : (int)$last, time())) {
+        $ended = 'Tu sesión ha caducado por inactividad. Vuelve a iniciar sesión.';
+      } else {
+        // Revocación: usuario borrado o desactivado, o contraseña cambiada desde el login → fuera.
+        $fresh = \App\Domain\AuthDomain::sessionuser($db, (int) $this->session->get("userid"), $this->session->get("fp"));
+        if ($fresh === null) {
+          $ended = 'Tu sesión se ha cerrado. Vuelve a iniciar sesión.';
+        } else {
+          $this->session->set("ultimaactividad", time());
+          $this->session->set("user", $fresh);
+          $this->logado = true;
+          $this->user = $fresh;
+        }
+      }
+      if ($ended !== null) {
+        $this->session->destroy();
+        // destroy() deja la sesión inactiva: se abre una nueva para poder guardar el aviso flash.
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) session_start();
+      }
     }
     if( $this->session->get("app_messages")) $this->messages = json_decode($this->session->get("app_messages"),true) ?: [];
+    if ($ended !== null) $this->addmessage(['type' => 'warning', 'text' => $ended]);
     $this->request = new Core\Request();
 
     // Los Domain reciben $app y leen $app->db: debe estar asignado antes de despachar.
@@ -108,8 +132,10 @@ class App
         $class = new $className($this);
         try {
           call_user_func_array([$class,$method],$vars);
-        }catch(\Exception $e){
-          $this->render_json(['error' =>"500 - Internal Server Error: ".$e->getMessage()],500);
+        }catch(\Throwable $e){
+          // El detalle solo al log: el mensaje de una excepción puede llevar SQL, rutas o datos.
+          error_log('[App] '.get_class($e).': '.$e->getMessage().' en '.$e->getFile().':'.$e->getLine());
+          $this->render_json(['error' =>"500 - Internal Server Error"],500);
         }
         break;
     }
@@ -151,14 +177,20 @@ class App
     return $this->request;
   }
 
-  /** Abre sesión para $item (fila de users). Nunca guarda el hash de la contraseña en sesión. */
-  function setUser($item){
+  /**
+   * Abre sesión para $item (fila de users). Nunca guarda el hash de la contraseña en sesión, solo su huella
+   * ($fingerprint, AuthDomain::fingerprint) para revocar la sesión si la contraseña cambia.
+   */
+  function setUser($item, ?string $fingerprint = null){
     unset($item['password']);
-    // Evita fijación de sesión: id nuevo al pasar a autenticado.
+    // Evita fijación de sesión: id nuevo al pasar a autenticado, y un token CSRF nuevo.
     if (session_status() === PHP_SESSION_ACTIVE && !headers_sent()) session_regenerate_id(true);
+    Core\Csrf::rotate();
     $this->session->set("logado",true);
     $this->session->set("userid",$item['iduser']);
     $this->session->set("user",$item);
+    $this->session->set("fp",$fingerprint);
+    $this->session->set("ultimaactividad",time());
     $this->logado = true;
     $this->user = $item;
   }
