@@ -54,7 +54,13 @@ Class SettingsScreen extends Core\ScreenBase
       if($this->validpost()){
         $item=$_POST;
         $item["idtypeuser"]=intval($id);
-        if(isset($_POST["eliminar"])) SettingsDomain::typeuser_delete( $this->app,$id);
+        if(isset($_POST["eliminar"])){
+          try{
+            SettingsDomain::typeuser_delete( $this->app,$id);
+          }catch(\InvalidArgumentException $e){
+            $this->app->addmessage(['type'=>'danger','text'=>$e->getMessage()]);
+          }
+        }
         else{
           try{
             SettingsDomain::typeuser_save( $this->app,$item);

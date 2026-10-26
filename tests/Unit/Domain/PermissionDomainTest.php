@@ -7,6 +7,16 @@ use PHPUnit\Framework\TestCase;
 
 class PermissionDomainTest extends TestCase
 {
+    // --- permissionsforuser sin tipo de usuario (no consulta la BBDD) ---
+
+    public function testuserwithouttypefailsclosed(): void
+    {
+        $db = new \PDO('sqlite::memory:');
+        $this->assertSame([], PermissionDomain::permissionsforuser($db, ['typeuserid' => 0]));
+        $this->assertSame([], PermissionDomain::permissionsforuser($db, ['iduser' => 5]));
+        $this->assertSame([], PermissionDomain::permissionsforuser($db, null));
+    }
+
     // --- modulefromclass ---
 
     public function testmodulefromclassstripsnamespaceandscreensuffix(): void

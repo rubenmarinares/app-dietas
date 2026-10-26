@@ -62,7 +62,7 @@ abstract class TestCase extends BaseTestCase
             'email' => 'admin+' . bin2hex(random_bytes(4)) . '@test.local',
             'password' => $password,
             'status' => 1,
-            'typeuserid' => 0,
+            'typeuserid' => 1, // Administrador sembrado ({"*":"write"}): sin tipo ya no hay acceso.
             'deadline2fa' => (int) date('Ymd', strtotime('+7 days')),
         ], $override);
         // Por el Model: así el hash es el mismo que usará la app.

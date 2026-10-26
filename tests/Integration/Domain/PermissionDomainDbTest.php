@@ -39,10 +39,33 @@ class PermissionDomainDbTest extends \Tests\TestCase
         $this->assertTrue(PermissionDomain::can($perms, 'settings', 'write'));
     }
 
-    public function testusertypezeroordeletedmeansfullaccess(): void
+    public function testusertypezeroordeletedfailsclosed(): void
     {
-        $this->assertNull(PermissionDomain::permissionsforuser($this->db, ['typeuserid' => 0]));
-        $this->assertNull(PermissionDomain::permissionsforuser($this->db, ['typeuserid' => 999999999]));
+        // Sin tipo, o con un tipo que ya no existe: sin acceso (antes era acceso total).
+        $this->assertSame([], PermissionDomain::permissionsforuser($this->db, ['typeuserid' => 0]));
+        $this->assertSame([], PermissionDomain::permissionsforuser($this->db, ['typeuserid' => 999999999]));
+        $this->assertFalse(PermissionDomain::can([], 'paginas', 'read'));
+    }
+
+    public function testtypeuserwithusersisnotdeleted(): void
+    {
+        $typeid = $this->fixturetypeuser('{"*": "read"}');
+        $this->fixtureAdminUser('x', ['typeuserid' => $typeid]);
+
+        try {
+            SettingsDomain::typeuser_delete($this->app(), $typeid);
+            $this->fail('Se esperaba InvalidArgumentException');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('usuarios', $e->getMessage());
+        }
+        $this->assertNotFalse($this->db->query('SELECT 1 FROM typesuser WHERE idtypeuser = ' . $typeid)->fetch());
+    }
+
+    public function testtypeuserwithoutusersisdeleted(): void
+    {
+        $typeid = $this->fixturetypeuser('{"*": "read"}');
+        SettingsDomain::typeuser_delete($this->app(), $typeid);
+        $this->assertFalse($this->db->query('SELECT 1 FROM typesuser WHERE idtypeuser = ' . $typeid)->fetch());
     }
 
     public function testnonobjectjsonfailsclosed(): void

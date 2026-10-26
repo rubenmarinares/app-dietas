@@ -63,6 +63,9 @@ class SettingsDomain  {
   }
 
   static public function typeuser_delete($app,$id){
+    // Un usuario sin tipo se queda sin acceso (PermissionDomain::permissionsforuser): antes hay que reasignarlos.
+    $n = (int) User::count($app->db, ['typeuserid' => (int) $id]);
+    if ($n > 0) throw new \InvalidArgumentException("No se puede eliminar: hay $n usuarios con este tipo. Asígnales otro tipo antes.");
     $item = TypeUser::get($app->db,$id);
     if($item) TypeUser::delete($app->db,$item);
     return true;

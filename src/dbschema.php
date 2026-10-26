@@ -8,6 +8,13 @@
  */
 $dbschema=[
 
+"login_intentos"=>[
+  'id' =>['type' => 'int', 'required'=>true, 'primary'=>true, 'autoincrement'=>true,],
+  'email' =>['type' => 'varchar', 'required'=>true, 'length' => '250',],
+  'ip' =>['type' => 'varchar', 'required'=>true, 'length' => '45',],
+  'stamp' =>['type' => 'int', 'required'=>true,],
+ ],
+
 "settings"=>[
   'key' =>['type' => 'varchar', 'required'=>true, 'primary'=>true, 'length' => '50',],
   'props' =>['type' => 'json', 'required'=>false, 'length' => '16777215',],

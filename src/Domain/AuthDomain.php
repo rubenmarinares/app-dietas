@@ -1,7 +1,7 @@
 <?php
 namespace App\Domain;
 
-use App\Domain\Models\{User, UserLog, TwoFactorModel, TwoFactorEmailModel};
+use App\Domain\Models\{User, UserLog, TwoFactorModel, TwoFactorEmailModel, LoginIntento};
 
 /**
  * Autenticación: credenciales + 2FA (TOTP o código por email).
@@ -16,9 +16,32 @@ use App\Domain\Models\{User, UserLog, TwoFactorModel, TwoFactorEmailModel};
 class AuthDomain  {
 
   /** Comprueba email+contraseña (con migración transparente md5 → password_hash). */
+  public const THROTTLEMESSAGE = 'Demasiados intentos. Inténtalo de nuevo en unos minutos.';
+
+  /**
+   * Comprueba email+contraseña (con migración transparente md5 → password_hash).
+   * Límite de intentos: bloqueado ⇒ LoginThrottledException con mensaje genérico (sin decir si el
+   * email existe). Solo se cuentan los fallos; un acceso correcto borra los de ese email.
+   * Si la tabla login_intentos falla, el login sigue funcionando (sin límite).
+   */
   static public function verifycredentials($app, $email, $pass){
+    $ip = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+    $now = time();
+    $norm = LoginThrottle::normalize((string)$email);
+    $recent = LoginIntento::recent($app->db, $norm, $ip, $now - LoginThrottle::WINDOW);
+    if (LoginThrottle::isblocked($recent, $now, $norm, $ip)) {
+      throw new LoginThrottledException(self::THROTTLEMESSAGE);
+    }
+    // El intento se registra ANTES de verificar la contraseña: una ráfaga de peticiones paralelas ve los
+    // intentos de las demás y no supera el límite. Un login correcto borra los fallos de ese email.
+    LoginIntento::record($app->db, $norm, $ip, $now);
     $item = User::login($app->db, $email, $pass);
-    return $item ?: false;
+    if ($item) {
+      LoginIntento::clearemail($app->db, $norm);
+      return $item;
+    }
+    if (random_int(1, 20) === 1) LoginIntento::purgebefore($app->db, $now - LoginThrottle::PURGEAFTER);
+    return false;
   }
 
   /** Abre la sesión del usuario y registra el acceso. */
@@ -228,6 +251,25 @@ class AuthDomain  {
     }
 
     return false;
+  }
+
+  /**
+   * Fase 2 del login con límite de intentos por usuario (LoginThrottle, clave twofakey): 5 fallos en
+   * 15 minutos ⇒ LoginThrottledException, aunque se vuelva a pasar la fase de contraseña. El intento se
+   * registra antes de comprobar el código (como verifycredentials) y un código correcto borra los fallos.
+   */
+  public static function verify2fa($db, int $userid, string $code, string $method, string $ip, ?int $now = null): bool
+  {
+    $now = $now ?? time();
+    $key = LoginThrottle::twofakey($userid);
+    $recent = LoginIntento::recent($db, $key, '', $now - LoginThrottle::WINDOW);
+    if (LoginThrottle::isblocked($recent, $now, $key)) {
+      throw new LoginThrottledException(self::THROTTLEMESSAGE);
+    }
+    LoginIntento::record($db, $key, $ip, $now);
+    if (!self::validate2FA($db, $userid, $code, $method)) return false;
+    LoginIntento::clearemail($db, $key);
+    return true;
   }
 
   /** Datos que la Screen necesita para la fase 2 (sin exponer Models a la Screen). */

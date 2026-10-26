@@ -37,7 +37,13 @@ Class LoginScreen extends Core\ScreenBase
             $username = trim($_POST["user"] ?? '');
             $password = $_POST["password"] ?? '';
 
-            $user = AuthDomain::verifycredentials($this->app, $username, $password);
+            try {
+                $user = AuthDomain::verifycredentials($this->app, $username, $password);
+            } catch (\App\Domain\LoginThrottledException $e) {
+                // Límite de intentos: mensaje genérico, sin pasar a la fase 2.
+                $this->render(1, $e->getMessage());
+                return;
+            }
 
             if ($user) {
                 $userid = (int) $user['iduser'];
@@ -84,7 +90,7 @@ Class LoginScreen extends Core\ScreenBase
                     $this->app->session->delete('2fa_pending');
                 } else {
                     try {
-                        if (AuthDomain::validate2FA($this->app->db, $userid, $code, $data['twofa']['primary_method'])) {
+                        if (AuthDomain::verify2fa($this->app->db, $userid, $code, (string) $data['twofa']['primary_method'], (string) ($_SERVER['REMOTE_ADDR'] ?? ''))) {
                             $this->app->session->delete('2fa_pending');
                             AuthDomain::completelogin($this->app, $data['user']);
                             header("Location: " . APP_PATH . "index");
@@ -92,9 +98,13 @@ Class LoginScreen extends Core\ScreenBase
                         }
                         $error = 'Código inválido o expirado. Intenta de nuevo.';
                         $step = 2;
-                    } catch (\Exception $e) {
-                        // Bloqueo por intentos u otros errores
+                    } catch (\App\Domain\LoginThrottledException $e) {
                         $error = $e->getMessage();
+                        $step = 2;
+                    } catch (\Exception $e) {
+                        // Bloqueo del código por email u otros errores: nunca el mensaje interno de la excepción.
+                        error_log('[LoginScreen] ' . get_class($e) . ' en la fase 2');
+                        $error = $e->getMessage() === 'Demasiados intentos. Intenta más tarde.' ? $e->getMessage() : 'No se ha podido verificar el código. Intenta de nuevo.';
                         $step = 2;
                     }
                 }

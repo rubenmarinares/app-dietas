@@ -69,12 +69,14 @@ class PermissionDomain
   }
 
   // Carga por request (no sesión): una bajada de permisos aplica de inmediato.
+  // Sin tipo de usuario, o con un tipo que ya no existe ⇒ [] (sin acceso): fail closed.
+  // Solo un tipo existente con permissions NULL da acceso total (retrocompatibilidad).
   static public function permissionsforuser(\PDO $db, ?array $user): ?array
   {
     $typeuserid = intval($user['typeuserid'] ?? 0);
-    if ($typeuserid === 0) return null;
+    if ($typeuserid === 0) return [];
     $row = TypeUser::get($db, $typeuserid);
-    if (!$row) return null;
+    if (!$row) return [];
     $decoded = $row['permissions'] ?? null;
     if ($decoded === null) return null;
     if (!is_array($decoded)) return []; // JSON no-objeto => fail closed (none para todo)
