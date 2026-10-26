@@ -63,4 +63,20 @@ class DeployPlanTest extends TestCase
         $plan = DeployPlan::build('', self::INCLUDES);
         $this->assertSame(['upload' => [], 'delete' => [], 'warnings' => []], $plan);
     }
+
+    /** FTP_PATHS escrito sin barra final (`src,public`): la entrada es a la vez fichero exacto y carpeta. */
+    public function testIncludeWithoutTrailingSlashAlsoMatchesItsFolder(): void
+    {
+        $includes = ['.htaccess', 'public', 'src', 'composer.lock'];
+        $this->assertTrue(DeployPlan::isdeployable('src/Core/App.php', $includes));
+        $this->assertTrue(DeployPlan::isdeployable('public/index.php', $includes));
+        $this->assertTrue(DeployPlan::isdeployable('.htaccess', $includes));
+        $this->assertTrue(DeployPlan::isdeployable('composer.lock', $includes));
+        $this->assertFalse(DeployPlan::isdeployable('srcx/a.php', $includes), 'nombre parcial, no carpeta');
+        $this->assertFalse(DeployPlan::isdeployable('docs/src/a.php', $includes), 'solo desde la raíz');
+        $this->assertFalse(DeployPlan::isdeployable('src/CLAUDE.md', $includes), 'nunca .md');
+        $plan = DeployPlan::build("M\tsrc/Core/App.php\nR100\tsrc/Old.php\tsrc/New.php\n", $includes);
+        $this->assertSame(['src/Core/App.php', 'src/New.php'], $plan['upload']);
+        $this->assertSame(['src/Old.php'], $plan['delete']);
+    }
 }

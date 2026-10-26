@@ -295,8 +295,18 @@ if (isset($options['paths']) || isset($options['remove'])) {
         ensureremotedir($ftp, dirname($remote));
         $local = exportblob($head, $path);
         $ok = @ftp_put($ftp, $remote, $local, FTP_BINARY);
+        if (!$ok) {
+            // Mismo reintento que la subida normal: la conexión queda inservible tras el fallo.
+            $motivo = error_get_last()['message'] ?? 'sin detalle';
+            @ftp_close($ftp);
+            $error = ftpputpartes($env, $port, $usessl, $remote, $local);
+            $ftp = ftpconectar($env, $port, $usessl);
+            @unlink($local);
+            if ($error !== '') fail("Fallo al subir $path ($motivo; reintento en dos partes: $error)");
+            echo "  subido $path (en dos partes tras: $motivo)\n";
+            continue;
+        }
         @unlink($local);
-        if (!$ok) fail("Fallo al subir $path");
         echo "  subido $path\n";
     }
     foreach ($removes as $path) {

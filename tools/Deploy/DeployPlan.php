@@ -60,7 +60,9 @@ class DeployPlan
     {
         if (strtolower(substr($path, -3)) === '.md') return false;
         foreach ($includes as $include) {
-            if (str_ends_with($include, '/') ? str_starts_with($path, $include) : $path === $include) {
+            // "src/" es una carpeta; "src" sin barra vale como fichero exacto o como carpeta (FTP_PATHS=src,public).
+            $folder = rtrim($include, '/') . '/';
+            if ($path === $include || str_starts_with($path, $folder)) {
                 return true;
             }
         }
