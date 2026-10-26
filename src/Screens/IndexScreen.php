@@ -29,14 +29,19 @@ Class IndexScreen extends Core\ScreenBase
       if(!Csrf::validate($_POST["csrf_token"] ?? '')){
         $data["errorcsrf"] = true;
       }else{
-        $ok = UserDomain::changepassword(
+        $error = UserDomain::changepassword(
           $this->app,
           (int)$this->app->user["iduser"],
+          (string)($_POST["currentpassword"] ?? ''),
           (string)($_POST["newpassword"] ?? ''),
           (string)($_POST["repeatnewpassword"] ?? '')
         );
-        if($ok) $data["passwordchanged"] = true;
-        else $data["errorpass"] = true;
+        if($error === null){
+          // Esta sesión sigue abierta; las demás del usuario se cierran (su huella ya no coincide).
+          \App\Domain\AuthDomain::refreshfingerprint($this->app);
+          $data["passwordchanged"] = true;
+        }
+        else $data["errorpass"] = $error;
       }
     }
 

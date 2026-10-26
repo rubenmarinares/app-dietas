@@ -122,7 +122,11 @@ Class LoginScreen extends Core\ScreenBase
         ]);
     }
 
+    /** POST /logout con CSRF (el botón «Salir» de la cabecera es un formulario). Sin token válido no cierra nada. */
     public function logout(){
+      if (!Csrf::validate($_POST['csrf_token'] ?? '')) {
+        header("Location: ".APP_PATH."index");die;
+      }
       AuthDomain::logout($this->app);
       header("Location: ".APP_PATH."login");die;
     }

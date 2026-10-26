@@ -17,9 +17,14 @@ class UserProfileScreen extends ScreenBase
 
     public function setup2fa(): void
     {
+        $email   = (string) ($this->app->user['email'] ?? '');
+        $userid  = (int) $this->app->user['iduser'];
+        // Sustituir un 2FA ya configurado exige la contraseña actual (una sesión robada no basta).
+        $reconfigure = (bool) AuthDomain::hasConfigured2FA($this->app->db, $userid);
+
         // GET: paso 1 (elegir método)
         if ($this->app->request->getRealMethod() === 'GET') {
-            $this->rendertemplate('profile/setup_2fa_step1.html', []);
+            $this->rendertemplate('profile/setup_2fa_step1.html', ['reconfigure' => $reconfigure]);
             return;
         }
 
@@ -27,19 +32,26 @@ class UserProfileScreen extends ScreenBase
             http_response_code(400);
             $this->rendertemplate('profile/setup_2fa_step1.html', [
                 'error' => 'El formulario ha caducado. Vuelve a empezar.',
+                'reconfigure' => $reconfigure,
             ]);
             return;
         }
 
         $step    = $_POST['step'] ?? 1;
         $primary = $_POST['primary_method'] ?? null;
-        $email   = (string) ($this->app->user['email'] ?? '');
-        $userid  = (int) $this->app->user['iduser'];
 
         if ($step == 1) {
             if (!in_array($primary, ['totp', 'email'], true)) {
                 $this->rendertemplate('profile/setup_2fa_step1.html', [
                     'error' => 'Selecciona un método válido',
+                    'reconfigure' => $reconfigure,
+                ]);
+                return;
+            }
+            if ($reconfigure && !AuthDomain::passwordok($this->app->db, $userid, (string) ($_POST['currentpassword'] ?? ''))) {
+                $this->rendertemplate('profile/setup_2fa_step1.html', [
+                    'error' => 'La contraseña actual no es correcta.',
+                    'reconfigure' => $reconfigure,
                 ]);
                 return;
             }

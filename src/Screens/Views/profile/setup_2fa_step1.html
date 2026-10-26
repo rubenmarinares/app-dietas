@@ -38,6 +38,13 @@
               <p class="text-muted mb-0">Recibirás un código por correo en cada inicio de sesión.</p>
             </div>
 
+            {% if reconfigure|default(false) %}
+            <div class="mb-3">
+              <label class="form-label" for="currentpassword">Ya tienes 2FA configurado: confirma tu contraseña actual para sustituirlo</label>
+              <input type="password" class="form-control" name="currentpassword" id="currentpassword" autocomplete="current-password" required>
+            </div>
+            {% endif %}
+
             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i>&nbsp;Continuar</button>
           </form>
         </div>

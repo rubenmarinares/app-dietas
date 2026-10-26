@@ -55,6 +55,20 @@ class AuthDomain  {
     return $item;
   }
 
+  /** ¿$password es la contraseña actual del usuario? (para reautenticar antes de cambiar el 2FA). */
+  static public function passwordok($db, int $userid, string $password): bool
+  {
+    $row = User::get($db, $userid);
+    return UserDomain::passwordmatches($row['password'] ?? null, $password);
+  }
+
+  /** Tras cambiar la contraseña propia: la sesión actual adopta la huella nueva (las demás quedan revocadas). */
+  static public function refreshfingerprint($app): void
+  {
+    $row = User::get($app->db, (int) ($app->user['iduser'] ?? 0));
+    if ($row) $app->session->set('fp', self::fingerprint((string) ($row['password'] ?? '')));
+  }
+
   /** Huella de un hash de contraseña para guardar en sesión (nunca el hash). */
   public static function fingerprint(string $hash): string
   {

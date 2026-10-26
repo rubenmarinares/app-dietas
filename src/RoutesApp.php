@@ -19,7 +19,8 @@ return [
     [['POST'], 'profile/2fa-setup', ['App\Screens\UserProfileScreen', 'setup2fa']],
 
     [['GET','POST'], 'login', ['App\Screens\LoginScreen', 'index']],
-    [['GET'], 'logout', ['App\Screens\LoginScreen', 'logout']],
+    // Logout solo por POST con CSRF: un GET (imagen o enlace en otra web) no puede cerrar la sesión.
+    [['POST'], 'logout', ['App\Screens\LoginScreen', 'logout']],
 
     [['GET'], 'settings', ['App\Screens\SettingsScreen', 'index']],
     [['GET','POST'], 'settings/user/{id:\d+}', ['App\Screens\SettingsScreen', 'user']],

@@ -41,13 +41,14 @@
                 </div>
 
                 <hr class="border-secondary border-opacity-50" />
-                <div class="d-grid mb-3">
-                  <a href="{{APP_PATH}}logout" class="btn btn-primary">
+                <form class="d-grid mb-3" method="post" action="{{APP_PATH}}logout">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <button type="submit" class="btn btn-primary">
                     <svg class="pc-icon me-2">
                       <use xlink:href="#custom-logout-1-outline"></use>
                     </svg>Salir
-                  </a>
-                </div>
+                  </button>
+                </form>
               </div>
             </div>
           </div>

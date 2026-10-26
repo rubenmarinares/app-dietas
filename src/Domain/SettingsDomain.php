@@ -22,11 +22,23 @@ class SettingsDomain  {
   }
 
   static function user_save($app,$item){
-    // El formulario manda "newpassword": solo se cambia si viene rellena.
-    unset($item["password"]);
-    if(strlen($item["newpassword"]??'')>0) $item["password"]=$item["newpassword"];
-    UserDomain::save($app,$item);
+    UserDomain::save($app,self::userfields($item));
     return true;
+  }
+
+  /**
+   * Campos que el formulario de usuario puede cambiar (pura). Todo lo demás de $_POST se descarta: sin esta
+   * lista, un POST con deadline2fa eximía a una cuenta del 2FA para siempre. "newpassword" solo cuenta si
+   * viene rellena (la hashea el Model).
+   */
+  static function userfields(array $post): array
+  {
+    $out = ['iduser' => intval($post['iduser'] ?? 0)];
+    foreach (['name', 'surname', 'email'] as $k) if (array_key_exists($k, $post)) $out[$k] = trim((string) $post[$k]);
+    foreach (['typeuserid', 'status'] as $k) if (array_key_exists($k, $post)) $out[$k] = intval($post[$k]);
+    $new = (string) ($post['newpassword'] ?? '');
+    if ($new !== '') $out['password'] = $new;
+    return $out;
   }
   static function usercombos($app,$params=[]){
     return User::getcombos($app->db,$params);

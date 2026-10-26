@@ -40,7 +40,7 @@
                 </div>
                 <div class="card-body">
                     {% if errorpass %}
-                    <div class="alert alert-danger">La contraseña está vacía o las contraseñas no coinciden</div>
+                    <div class="alert alert-danger">{{ errorpass }}</div>
                     {% endif %}
                     {% if errorcsrf %}
                     <div class="alert alert-danger">El formulario ha caducado. Vuelve a intentarlo.</div>
@@ -52,9 +52,14 @@
                         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         <div class="row">
 
+                            <div class="mb-2 col-md-12">
+                                <label class="form-label">Contraseña actual</label>
+                                <input type="password" class="form-control" name="currentpassword" value="" autocomplete="current-password" required>
+                            </div>
+
                             <div class="mb-2 col-md-6">
-                                <label class="form-label">Nueva contraseña</label>
-                                <input type="password" class="form-control" name="newpassword" value="">
+                                <label class="form-label">Nueva contraseña <span class="text-muted small">(mín. 10 caracteres)</span></label>
+                                <input type="password" class="form-control" name="newpassword" value="" minlength="10" autocomplete="new-password" required>
                             </div>
 
                             <div class="mb-2 col-md-6">
