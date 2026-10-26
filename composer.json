@@ -28,14 +28,15 @@
         "ext-pdo": "*",
         "nikic/fast-route": "^1.3",
         "twig/twig": "^3.0",
-        "maximebf/debugbar": "^1.23",
         "phpmailer/phpmailer": "^6.9",
         "spomky-labs/otphp": "^11.4.3",
         "league/flysystem": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/flysystem-ftp": "^3.0",
         "aws/aws-sdk-php": "^3.319",
-        "mpdf/mpdf": "^8.2"
+        "mpdf/mpdf": "^8.2",
+        "bacon/bacon-qr-code": "^3.0",
+        "php-debugbar/php-debugbar": "^2.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.5"

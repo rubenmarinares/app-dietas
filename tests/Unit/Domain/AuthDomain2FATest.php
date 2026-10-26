@@ -45,7 +45,12 @@ class AuthDomain2FATest extends TestCase
 
         $qr = AuthDomain::generateQRCode($secret, $email);
 
-        $this->assertStringStartsWith('data:image', $qr);
+        // Un QR escaneable de verdad (SVG con módulos), no un SVG con el texto de la URI.
+        $this->assertStringStartsWith('data:image/svg+xml;base64,', $qr);
+        $svg = (string) base64_decode(substr($qr, strlen('data:image/svg+xml;base64,')), true);
+        $this->assertStringContainsString('<svg', $svg);
+        $this->assertMatchesRegularExpression('/<(path|rect)\b/', $svg);
+        $this->assertStringNotContainsString('otpauth://', $svg, 'el secreto no debe ir como texto legible');
     }
 
     public function testValidateEmailCodeWithLockout()

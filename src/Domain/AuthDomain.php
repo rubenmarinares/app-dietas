@@ -139,17 +139,20 @@ class AuthDomain  {
   }
 
   /**
-   * OJO: NO genera un QR escaneable. Devuelve un SVG con el texto de la URI
-   * (herencia de admin.redgdps). La plantilla muestra además el secreto y la URI
-   * para alta manual. Ver docs/aprendizajes.md ("QR de 2FA falso").
+   * QR escaneable de la URI otpauth:// como data URI SVG (bacon/bacon-qr-code, PHP puro: sin GD ni servicios
+   * externos, el secreto no sale del servidor). La plantilla ofrece además el secreto para el alta manual.
    */
   public static function generateQRCode(string $secret, string $email): string
   {
     try {
-      $encoded = htmlspecialchars(self::provisioninguri($secret, $email), ENT_QUOTES, 'UTF-8');
-      return "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><text x='10' y='20' font-size='8'>" . $encoded . "</text></svg>";
-    } catch (\Exception $e) {
-      throw new \RuntimeException('Failed to generate QR code: ' . $e->getMessage());
+      $renderer = new \BaconQrCode\Renderer\ImageRenderer(
+        new \BaconQrCode\Renderer\RendererStyle\RendererStyle(240, 2),
+        new \BaconQrCode\Renderer\Image\SvgImageBackEnd()
+      );
+      $svg = (new \BaconQrCode\Writer($renderer))->writeString(self::provisioninguri($secret, $email));
+      return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    } catch (\Throwable $e) {
+      throw new \RuntimeException('No se pudo generar el código QR.');
     }
   }
 

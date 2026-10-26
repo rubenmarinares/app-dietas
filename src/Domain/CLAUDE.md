@@ -14,7 +14,7 @@ Clases `XxxDomain` con métodos `static`. Sin estado. Orquestan Models; no escri
 
 | Clase | Qué hace |
 |---|---|
-| `AuthDomain` | Login en fases: `verifycredentials()` (sin abrir sesión) → `completelogin()` (sesión + `users_logs`). 2FA: `generateTOTPSecret`, `validateTOTP`, `provisioninguri`, `generateQRCode` (SVG de texto, ver aprendizajes), `send2FAEmail`, `validateEmailCode` (5 min, 3 intentos → bloqueo 15 min), `setup2FA`, `reset2FA`, `isInGracePeriod`, `gracedeadline`, `pendinguser`. |
+| `AuthDomain` | Login en fases: `verifycredentials()` (sin abrir sesión) → `completelogin()` (sesión + `users_logs`). 2FA: `generateTOTPSecret`, `validateTOTP`, `provisioninguri`, `generateQRCode` (QR SVG real con bacon/bacon-qr-code), `send2FAEmail`, `validateEmailCode` (5 min, 3 intentos → bloqueo 15 min), `setup2FA`, `reset2FA`, `isInGracePeriod`, `gracedeadline`, `pendinguser`. |
 | `PermissionDomain` | `LEVELS` none<read<write; `modulefromclass`, `requiredlevelformethod`, `levelfor`, `can`, `parsepermissionsinput` (valida el JSON del formulario), `permissionsforuser` (por petición), `logdenied`, `ALWAYSALLOWED`, `MODULEALIASES`. |
 | `UserDomain` | `list`, `get`, `save` (alta ⇒ plazo de gracia 2FA), `changepassword`, `delete`, combos. |
 | `SettingsDomain` | Pantalla Configuración: `index` (users + typesuser), `user`, `user_save` (`newpassword` solo si viene rellena), `user_delete`, `typeuser`, `typeuser_save` (JSON → array; vacío ⇒ NULL = acceso total), `typeuser_delete`. |
