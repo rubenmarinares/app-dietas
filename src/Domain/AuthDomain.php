@@ -171,7 +171,7 @@ class AuthDomain  {
       'attempts'   => 0,
     ]);
 
-    \App\Core\Mailer::send(
+    MailDomain::send(
       $user['email'],
       $user['name'] ?? '',
       'Código de autenticación — ' . APP_NAME,

@@ -18,6 +18,14 @@ loadenv(dirname(__DIR__, 2) . '/.env');
 if (!defined('APP_NAME'))     define('APP_NAME', env('APP_NAME', 'redGDPS'));
 if (!defined('APP_DEBUG'))    define('APP_DEBUG', envbool('APP_DEBUG', false));
 if (!defined('APP_TIMEZONE')) define('APP_TIMEZONE', env('APP_TIMEZONE', 'Europe/Madrid'));
+// Entorno: 'production' SOLO en el servidor real (único que permite el envío real de emails, MailDomain);
+// 'staging' en preproducción; 'local' o 'test' en desarrollo (el log de emails guarda el mensaje completo).
+if (!defined('APP_ENV'))      define('APP_ENV', (string) env('APP_ENV', ''));
+
+// --- Envío de emails (Domain\MailDomain) ---
+// desactivado (por defecto) | sandbox | real. 'real' solo envía con APP_ENV=production.
+if (!defined('MAIL_MODE'))          define('MAIL_MODE', (string) env('MAIL_MODE', 'desactivado'));
+if (!defined('MAIL_SANDBOX_EMAIL')) define('MAIL_SANDBOX_EMAIL', (string) env('MAIL_SANDBOX_EMAIL', ''));
 // Días de gracia para configurar 2FA que se conceden a un usuario nuevo.
 if (!defined('TWOFA_GRACE_DAYS')) define('TWOFA_GRACE_DAYS', envint('TWOFA_GRACE_DAYS', 7));
 
