@@ -29,7 +29,7 @@
             <img src="{{ qr_code }}" alt="Código QR" style="max-width: 300px;">
           </div>
 
-          {# El "QR" es un SVG con el texto de la URI (ver docs/aprendizajes.md): ofrecer siempre alta manual. #}
+          {# QR real (SVG, AuthDomain::generateQRCode); el alta manual sigue disponible por si la cámara no puede. #}
           <p class="text-muted mb-1">Si no puedes escanear, introduce manualmente este código:</p>
           <p><code>{{ secret }}</code></p>
           {% if otpauth is defined %}

@@ -49,15 +49,43 @@ Errores reales encontrados al extraer este esqueleto, por qué ocurrieron y cóm
 | ✅ `regen_dbschema.php` reescribía `dbschema.php` entero, perdiendo `ordercol`, `default` y `maincol` puestos a mano. | Generador "desde cero". | Modo "solo añadir" + `--dry-run`. |
 | ✅ `league/flysystem` fijado a `3.0` (con aviso de seguridad) y `spomky-labs/otphp` 10.x (aviso; además `minimum-stability: dev` instalaba una rama dev). | Versiones congeladas sin revisar. | `^3.0`, `^11.4.3` y `minimum-stability: stable`. `composer audit` limpio. |
 
+## Corregidos tras el proyecto redGDPS 2026 (octubre de 2026)
+
+Encontrados al llevar a producción un CMS construido sobre este esqueleto (auditoría de seguridad y paso a producción). Cada uno con su test.
+
+| Bug | Por qué pasó | Corrección |
+|---|---|---|
+| ✅ **Sin límite de intentos en el login ni en el 2FA**: con una contraseña robada, el código TOTP se adivinaba por fuerza bruta en horas (≈1,7 M intentos/día). | La fase 2 no contaba fallos y volver a pasar la contraseña reiniciaba todo. | `LoginThrottle` (5 fallos/email o 20/IP en 15 min, tabla `login_intentos`) y `AuthDomain::verify2fa` con clave por usuario (`2fa:<id>`) que un login correcto **no** borra. |
+| ✅ **Borrar un tipo de usuario daba acceso total a sus usuarios**: `permissionsforuser` devolvía `null` (= todo) con `typeuserid` 0 o inexistente. | «Sin permisos = acceso total» por compatibilidad. | Sin tipo o con tipo inexistente → `[]` (nada); `typeuser_delete` se niega si quedan usuarios con ese tipo. Solo un tipo existente con `permissions` NULL da acceso total. |
+| ✅ **La plantilla traía `public/assets/json/file-upload.php`**: subida de ficheros **sin autenticación** que se ejecutaba. | Material de demostración del tema copiado con los assets. | Borrado; `HtaccessTest` exige que en `public/` solo haya `index.php`, `app.php` y `router.php`. |
+| ✅ **Cualquier `.php` real fuera de `public/` se ejecutaba** (código viejo en el docroot, subcarpetas con su propio `RewriteEngine`). | El `.htaccess` solo reescribía lo que no existía. | `<If>` que deniega todo script real salvo los dos front controllers (probado en Apache/PHP-FPM real: 403 en la raíz, en subcarpetas y con PATH_INFO). HTTPS forzado y `RemoveHandler .var` (las fuentes Inter `.var.woff2` daban 500). |
+| ✅ **Las sesiones no se revocaban**: desactivar o borrar un usuario, o cambiar su contraseña, no cerraba sus sesiones; un cambio de tipo solo aplicaba al volver a entrar. | `App` confiaba en la copia del usuario guardada en sesión. | La sesión guarda una huella de la contraseña (`AuthDomain::fingerprint`, nunca el hash) y `App` relee el usuario en cada petición (`sessionuser`); cambiar la contraseña propia renueva la huella de esa sesión y cierra las demás. Más caducidad por inactividad (2 h), cookie `HttpOnly/SameSite/Secure` con `use_strict_mode` y cabeceras (`SecurityHeaders`). |
+| ✅ **Cambio de contraseña y de 2FA sin reautenticación**: con una sesión robada se secuestraba la cuenta. | — | Exigen la contraseña actual; la nueva, mínimo 10 caracteres. |
+| ✅ **`SettingsScreen` guardaba todo `$_POST`**: un POST con `deadline2fa` eximía a una cuenta del 2FA para siempre. | Asignación masiva. | `SettingsDomain::userfields` (lista blanca). |
+| ✅ Logout por GET (cerrable desde otra web), token CSRF sin rotar al iniciar sesión y mensajes de excepción mostrados al usuario (500 con el texto interno; fase 2 del login). | — | Logout solo por POST con CSRF; `Csrf::rotate()` en `setUser`; el detalle solo a `error_log`. |
+| ✅ **El email salía directo por SMTP desde cualquier entorno** (`send2FAEmail` → `Mailer::send`). | Sin interruptor de envío. | `MailDomain` con `MAIL_MODE` desactivado/sandbox/real; `real` solo con `APP_ENV=production` exacto; log sin datos personales (con el mensaje completo solo en `local`/`test`). `MailerUsageTest` impide llamar a `Mailer::send` desde otro sitio. |
+| ✅ **`deploy.php` no subía nada con `FTP_PATHS=src,public`** (sin barra final). | `isdeployable` solo trataba como carpeta lo acabado en `/`. | Una entrada sin barra vale como fichero exacto o carpeta. Nuevo `deploy_ssh.php`. |
+| ✅ QR del 2FA falso (SVG con el texto de la URI) y `maximebf/debugbar` abandonado. | — | QR real con `bacon/bacon-qr-code`; `php-debugbar/php-debugbar`. |
+
+## Aprendizajes de operación (redGDPS 2026)
+
+- **Staging nunca contra la BBDD de producción.** Y aunque sea temporal: `APP_ENV=staging` (no `production`) en su `.env`, o enviará emails reales con los datos reales. El modo de envío real exige las dos cosas a la vez.
+- **El `.env` nunca antes que el `.htaccess` que lo protege**: un `.htaccess` antiguo lo serviría como texto plano.
+- **FTPS de hosting compartido**: puede admitir **una sola sesión** (abrir más bloquea la IP unos minutos), colgar ficheros concretos (en Dinahosting, ~65 KB y otros) e ir a ~1 s por fichero; el listado NLST se trunca (~160 entradas) y las rutas absolutas pueden fallar donde las relativas funcionan. **Si hay SSH, desplegar por SSH** (`deploy_ssh.php`): 25 MB en un segundo.
+- **PHP de consola ≠ PHP web**: en Dinahosting `php` era 7.0 y el 8.5 estaba en `/usr/local/bin/php85`. Comprobar la sintaxis con el de la versión real (`SSH_PHP`).
+- **`vendor/` de producción con `composer install --no-dev --optimize-autoloader`**; se puede generar en local y subir en un `.tar.gz`.
+- **URLs heredadas que devuelven la portada con 200 son «soft 404»** (Search Console las marca): responder 301 a la página equivalente, 410 si ya no existe.
+- **Token de cron**: en la URL (`?token=`), comparado con `hash_equals`, ≥ 24 caracteres y 404 si falta o no coincide (sin revelar que la ruta existe). Un token corto se rechaza siempre.
+- **Paso a producción en el mismo hosting**: ver `docs/paso-a-produccion.md`.
+
 ## Limitaciones conocidas (no corregidas a propósito)
 
-- **QR de 2FA falso**: `AuthDomain::generateQRCode` devuelve un SVG con el texto de la URI `otpauth://`, no un QR escaneable. La pantalla muestra el secreto y la URI para alta manual. Para un QR real: añadir `endroid/qr-code` (lo usaba admin.redgdps en otra parte) o una librería JS.
-- El secreto TOTP viaja en un campo oculto entre los pasos del asistente (protegido por CSRF y sesión). Alternativa: guardarlo en sesión.
+- **CSP del panel en modo solo informe** (`Content-Security-Policy-Report-Only`, con `unsafe-inline`): el tema usa scripts y estilos en línea. Pasarla a aplicada exige nonces o sacar el código en línea; probarlo pantalla a pantalla.
 - **Sin tabla de control de migraciones**: todo se reejecuta; exige disciplina de idempotencia.
 - **Twig Environment por render**: se reconstruye en cada `rendertemplate()`. Aceptable en el panel; cachearlo para el CMS público.
 - `ModelBase::validate` hace `echo` + `die` si falta un campo requerido (heredado; los Domain deben validar antes).
 - `ModelBase::update` ignora valores `null`: para poner NULL hace falta un método específico en el Model.
 - `Database` tiene ramas para Oracle/SQLite heredadas y sin uso.
-- `maximebf/debugbar` está abandonado (sucesor `php-debugbar/php-debugbar`); solo se usa con `APP_DEBUG`.
+- Dependencias sin uso en el esqueleto: `aws/aws-sdk-php`, `league/flysystem*` (`Core\Storage`, `Core\S3FILE`) y `mpdf/mpdf` (`Core\PDF`) suman ~70 MB de `vendor/`. En redGDPS se quitaron por no usarse; quitarlas aquí si el proyecto no los necesita.
 - Nomenclatura mixta (minúsculas sin separador vs camelCase en 2FA/Request): pendiente de decidir; ver `CLAUDE.md`.
 - `src/cache/views/` puede contener plantillas compiladas de las pruebas locales (ignoradas por git).
