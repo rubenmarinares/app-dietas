@@ -33,9 +33,19 @@
 
 
 
+  // Contenido nuevo del sidepanel. Antes quita los TinyMCE del contenido anterior: si no, al volver a abrir un panel
+  // con el mismo id de textarea TinyMCE cree que ese editor ya existe y deja el textarea sin editor.
+  function setsidepanel(html){
+    var body=document.getElementById('sidepanel-body');
+    if(window.tinymce){
+      tinymce.get().forEach(function (ed) { var el=ed.getElement(); if(!el || body.contains(el) || !document.body.contains(el)) ed.remove(); });
+    }
+    body.innerHTML=html;
+  }
+
   function opensidepanel(url,html=''){
     if(html!=''){
-      document.getElementById('sidepanel-body').innerHTML=html;
+      setsidepanel(html);
       var bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('sidepanel'))
       renderplugins(document.getElementById('sidepanel'));
       bsOffcanvas.show();
@@ -44,7 +54,7 @@
             return response.text();
           }).then(function (html) {
             // This is the HTML from our response as a text string
-              document.getElementById('sidepanel-body').innerHTML=html;
+              setsidepanel(html);
               var bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('sidepanel'))
               renderplugins(document.getElementById('sidepanel'));
               bsOffcanvas.show();
@@ -65,7 +75,7 @@
             return response.text();
           }).then(function (html) {
             // This is the HTML from our response as a text string
-              document.getElementById('sidepanel-body').innerHTML=html;
+              setsidepanel(html);
               var bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('sidepanel'))
               renderplugins(document.getElementById('sidepanel'));
               bsOffcanvas.show();
