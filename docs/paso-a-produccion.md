@@ -12,7 +12,7 @@ Guía genérica para publicar un proyecto hecho con este esqueleto **en el mismo
 ## Antes (sin prisa, la web vieja sigue funcionando)
 
 1. **Inventario** del docroot actual (`ls -A`): qué se queda (certificados `.well-known/`, subidas que el CMS sigue sirviendo, ficheros de verificación de buscadores, `robots.txt`), qué se aparta y qué se sustituye. Decidir las carpetas dudosas antes del día del corte.
-2. **Versión de PHP** del hosting (web y consola: pueden ser distintas) y extensiones (`pdo_mysql`, `mbstring`, `openssl`).
+2. **Versión de PHP** del hosting (web y consola: pueden ser distintas) y extensiones (`pdo_mysql`, `mbstring`, `openssl`; para `phpoffice/phpspreadsheet`: `ctype`, `dom`, `fileinfo`, `gd`, `iconv`, `libxml`, `simplexml`, `xml`, `xmlreader`, `xmlwriter`, `zip`, `zlib`).
 3. **`.env` de producción** completo (lo escribe una persona, nunca se versiona): `APP_ENV=production`, `APP_DEBUG=0`, `APP_URL`, `DB_*` (usuario MySQL propio de producción), `SMTP_*`, `MAIL_MODE=real`, tokens (≥ 24 caracteres).
 4. **Copias de seguridad** fuera del servidor: dump de la BBDD nueva y de la vieja, y descarga del docroot actual.
 5. **Copia limpia** de las carpetas estáticas heredadas que se conservan: **sin ningún script** (`.php*`, `.phtml`, `.phar`, `.inc`, `.cgi`…). Aun así, el `.htaccess` del esqueleto deniega cualquier script real fuera de los front controllers.
