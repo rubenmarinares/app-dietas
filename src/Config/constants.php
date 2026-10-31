@@ -21,6 +21,8 @@ if (!defined('APP_TIMEZONE')) define('APP_TIMEZONE', env('APP_TIMEZONE', 'Europe
 // Entorno: 'production' SOLO en el servidor real (único que permite el envío real de emails, MailDomain);
 // 'staging' en preproducción; 'local' o 'test' en desarrollo (el log de emails guarda el mensaje completo).
 if (!defined('APP_ENV'))      define('APP_ENV', (string) env('APP_ENV', ''));
+// URL base absoluta de la aplicación para los enlaces que salen de ella, como los de los emails (sin barra final).
+if (!defined('APP_URL'))      define('APP_URL', rtrim((string) env('APP_URL', ''), '/'));
 
 // --- Envío de emails (Domain\MailDomain) ---
 // desactivado (por defecto) | sandbox | real. 'real' solo envía con APP_ENV=production.
