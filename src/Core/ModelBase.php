@@ -122,7 +122,9 @@ abstract class ModelBase
   }
 
   static function enrichvalues($row){
-    if (!is_array($row)) return $row;
+    // runone() devuelve [] sin fila: sin este corte, las columnas json se añadían a null y get() de un id
+    // inexistente devolvía un array no vacío (truthy).
+    if (!is_array($row) || $row === []) return $row;
     if(static::$combos)
       foreach(static::$combos as $key=>$combo)
         if( array_key_exists($key,$row))
@@ -212,7 +214,8 @@ abstract class ModelBase
     ];
   }
 
-  static function search($db,$filters=[]){
+  /** `$order` se valida con safeorder(); vacío o no válido, defaultorder(). */
+  static function search($db,$filters=[],$order=''){
     $params=[];
     $sqlselect=static::_sqlselect();
     $sqlfrom=static::_sqljoins();
@@ -220,9 +223,48 @@ abstract class ModelBase
     $sql = $sqlselect . $sqlfrom . $sqlwhere["sql"];
     $params = $sqlwhere["params"];
 
-    $sql.= static::defaultorder();    
+    $orderby=is_string($order)?static::safeorder($order):null;
+    $sql.= $orderby!==null?' ORDER BY '.$orderby:static::defaultorder();
 //    echo $sql; var_export($params);die;
     return array_map([static::class,'enrichvalues'],$db->run($sql, $params) ?: []);
+  }
+
+  /**
+   * search() paginado: `page` 1-based acotada a [1, pages]. `$order` solo se usa si cada término
+   * es `columna` o `tabla.columna` (tabla propia, de un join o su alias) existente en el esquema,
+   * con ASC|DESC opcional; si no, defaultorder().
+   * @return array{items:array,total:int,page:int,pages:int}
+   */
+  static function searchpage($db,array $filters,int $page,int $perpage,string $order=''){
+    $perpage=max(1,$perpage);
+    $total=(int)static::count($db,$filters);
+    $pages=max(1,(int)ceil($total/$perpage));
+    $page=min($pages,max(1,$page));
+    $sqlwhere=static::_sqlwhere($db,$filters);
+    $orderby=static::safeorder($order);
+    $sql=static::_sqlselect().static::_sqljoins().$sqlwhere["sql"]
+      .($orderby!==null?' ORDER BY '.$orderby:static::defaultorder())
+      .' LIMIT '.$perpage.' OFFSET '.(($page-1)*$perpage);
+    $items=array_map([static::class,'enrichvalues'],$db->run($sql,$sqlwhere["params"]) ?: []);
+    return ['items'=>$items,'total'=>$total,'page'=>$page,'pages'=>$pages];
+  }
+
+  /** ORDER BY validado contra el esquema (sin el prefijo) o null si algún término no es válido. */
+  static function safeorder(string $order){
+    if(trim($order)==='') return null;
+    $tables=[static::$tablename=>static::$tablename];
+    foreach(static::$joins as $join){
+      $tables[$join[0]]=$join[0];
+      if(strlen(''.($join[4]??''))>0) $tables[$join[4]]=$join[0];
+    }
+    $terms=[];
+    foreach(explode(',',$order) as $term){
+      if(!preg_match('/^\s*(?:([a-z0-9_]+)\.)?([a-z0-9_]+)(?:\s+(asc|desc))?\s*$/i',$term,$m)) return null;
+      $alias=$m[1]!==''?$m[1]:static::$tablename;
+      if(!isset($tables[$alias]) || !static::hasschemacolumn($tables[$alias],$m[2])) return null;
+      $terms[]=$alias.'.'.$m[2].' '.strtoupper(($m[3]??'')!==''?$m[3]:'ASC');
+    }
+    return implode(', ',$terms);
   }
 
   private const COMPARISON_OPERATORS=["EQUAL"=>"=","NOT_EQUAL"=>"<>","GT"=>">","LT"=>"<","GTE"=>">=","LTE"=>"<="];
@@ -317,9 +359,14 @@ abstract class ModelBase
   static function filterfields($item) {
     $result=[];
     foreach($GLOBALS["dbschema"][static::$tablename] as $key=>$value) {
-      if(isset($item[$key])) {
+      // array_key_exists (no isset): un null explícito se conserva para poder escribir NULL.
+      if(array_key_exists($key,$item)) {
+        if($item[$key]===null){
+          $result[$key]=null;
+          continue;
+        }
         if($value["type"]=='json') $item[$key]=json_encode($item[$key]);
-        elseif($value['type']=='varchar') $item[$key]=substr($item[$key],0,$value['length']);
+        elseif($value['type']=='varchar' && isset($value['length'])) $item[$key]=mb_substr((string)$item[$key],0,(int)$value['length'],'UTF-8');
         if($value['type']=='int') $item[$key]=intval($item[$key]);
         if($value['type']=='bigint') $item[$key]=(PHP_INT_SIZE>=8?intval($item[$key]):floatval($item[$key]));
         if($value['type']=='float') $item[$key]=floatval($item[$key]);
@@ -345,7 +392,9 @@ abstract class ModelBase
         die;
         return false;
       }
-      if(intval($value['length']??'0')>0 && strlen($item[$key]??'') >intval($value['length']??'0') ){
+      if(intval($value['length']??'0')>0 && ( ($value['type']??'')==='varchar'
+          ? mb_strlen((string)($item[$key]??''),'UTF-8')
+          : strlen((string)($item[$key]??'')) ) >intval($value['length']??'0') ){ // varchar = caracteres; text/json = bytes
         echo ''.$key.' is too long';
         die;
         return false;
@@ -390,6 +439,8 @@ abstract class ModelBase
       $sql .= ' WHERE  '.implode(' AND ',$wherekeys)." ";
       return  static::enrichvalues($db->runone($sql, $params));
     }else{
+      if(count(static::primaries())>1)
+        throw new \InvalidArgumentException(static::$tablename.' tiene primaria compuesta: get() requiere un array con las primarias');
       $sql .= ' WHERE  '.static::wherekeys()." ";
       return  static::enrichvalues($db->runone($sql, array($id)));
     }
@@ -419,10 +470,19 @@ abstract class ModelBase
     $result=$db->insert(static::$tablename, $item);
     if($result){
       if($uuid) return $uuid;
-      elseif(count(static::primaries())==1) return static::lastid($db);
-      else return static::lastinsert($db);
+      $primaries=static::primaries();
+      if(count($primaries)==1){
+        // Autoincremental: el id lo asigna la BBDD. Si no, es el valor aportado.
+        if($GLOBALS["dbschema"][static::$tablename][$primaries[0]]['autoincrement']??false) return (int)$db->lastInsertId();
+        return $item[$primaries[0]]??null;
+      }
+      // Primaria compuesta: los valores de las primarias del propio $item.
+      $pk=[];
+      foreach($primaries as $key) $pk[$key]=$item[$key]??null;
+      return $pk;
     }else{
-      $db->error="Error inserting ".static::$tablename;
+      // db::$error es privada: asignarla desde fuera lanzaba Error en vez de devolver false.
+      error_log("[ModelBase] Error inserting ".static::$tablename);
       return false;
     }
 

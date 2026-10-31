@@ -6,6 +6,35 @@ use App\Domain\AuthDomain;
 
 class AuthDomain2FATest extends TestCase
 {
+    /** Pasar a email como principal no debe borrar el secreto TOTP: sigue siendo el método de respaldo. */
+    public function testSetupKeepsTheStoredSecretWhenSwitchingToEmail()
+    {
+        $originalschema = $GLOBALS['dbschema'] ?? null;
+        $GLOBALS['dbschema'] = ['user_2fa' => [
+            'userid' => ['type' => 'int', 'primary' => true],
+            'primary_method' => ['type' => 'varchar', 'length' => 10, 'required' => true],
+            'backup_method' => ['type' => 'varchar', 'length' => 10, 'required' => true],
+            'totp_secret' => ['type' => 'varchar', 'length' => 128],
+            'backup_email' => ['type' => 'varchar', 'length' => 255],
+            'configured_at' => ['type' => 'int', 'required' => true],
+        ]];
+        $db = new class {
+            public array $updated = [];
+            public function runone($sql, $bind = []) { return ['userid' => '7', 'totp_secret' => 'SECRETO']; }
+            public function run($sql, $bind = []) { return 1; }
+            public function update($table, $info, $where, $bind = '') { $this->updated[] = $info; return 1; }
+        };
+        try {
+            AuthDomain::setup2FA($db, 7, 'email', 'totp', null, null);
+        } finally {
+            $GLOBALS['dbschema'] = $originalschema;
+        }
+        $this->assertCount(1, $db->updated);
+        $this->assertSame('email', $db->updated[0]['primary_method']);
+        $this->assertArrayNotHasKey('totp_secret', $db->updated[0]);
+        $this->assertArrayNotHasKey('backup_email', $db->updated[0]);
+    }
+
     public function testGenerateTOTPSecret()
     {
         $secret = AuthDomain::generateTOTPSecret();

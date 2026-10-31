@@ -33,9 +33,9 @@ class User extends Core\ModelBase {
     return is_string($hash) && preg_match('/^[a-f0-9]{32}$/i', $hash) === 1;
   }
 
-  static public function search($db, $filters = [])
+  static public function search($db, $filters = [], $order = '')
   {
-    $items= parent::search($db, $filters);
+    $items= parent::search($db, $filters, $order);
 
     $sqlwhere=static::_sqlwhere($db,$filters);
     $sql = "SELECT users.iduser,MAX(users_logs.stamp) as lastaccess "

@@ -238,6 +238,8 @@ class AuthDomain  {
       'backup_email'   => $backup_email,
       'configured_at'  => (int) date('Ymd'),
     ];
+    // Sin null: ModelBase lo escribiría y borraría el secreto TOTP, que sigue siendo el método de respaldo.
+    $data = array_filter($data, static fn($value) => $value !== null);
 
     if (self::hasConfigured2FA($db, $userid)) {
       TwoFactorModel::update($db, $data);
