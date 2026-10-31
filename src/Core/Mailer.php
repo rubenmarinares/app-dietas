@@ -35,7 +35,7 @@ class Mailer
             return $mail->send();
         } catch (PHPMailerException $e) {
        //     var_export($e->getMessage());
-            error_log('Mailer failed: ' . $e->getMessage());
+            error_log('Mailer failed: ' . Pii::maskmessage($e->getMessage()));
             return false;
         }
     }

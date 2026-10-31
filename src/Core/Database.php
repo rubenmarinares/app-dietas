@@ -61,6 +61,8 @@ final class Database
 }  
 
 class db extends \PDO {
+  /** true: run/runone/insert/update/delete relanzan la PDOException en vez de registrar y devolver false (lo activa Tx::run). */
+  public $throwonerror = false;
   private $error;
   private $sql;
   private $bind;
@@ -77,13 +79,23 @@ class db extends \PDO {
   }
 
 
-  public function __construct($dsn, $user="", $passwd="") {
-    $options = array(
+  /**
+   * utf8mb4 (no utf8 = utf8mb3: perdía los caracteres de 4 bytes) con la colación de las tablas. Sin
+   * `SET CHARACTER SET`, que dejaría la conexión en el juego de caracteres por defecto de la BBDD.
+   */
+  public const INITCOMMAND = 'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci';
 
+  /** Opciones de la conexión MySQL. */
+  static public function options(): array {
+    return [
       \PDO::ATTR_CASE => \PDO::CASE_LOWER,
-      \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8;SET CHARACTER SET 'UTF8';",
-      \PDO::ATTR_STRINGIFY_FETCHES => true
-    );
+      \PDO::MYSQL_ATTR_INIT_COMMAND => self::INITCOMMAND,
+      \PDO::ATTR_STRINGIFY_FETCHES => true,
+    ];
+  }
+
+  public function __construct($dsn, $user="", $passwd="") {
+    $options = self::options();
  //      \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
 //       \PDO::ATTR_PERSISTENT => true, 
 
@@ -202,7 +214,7 @@ class db extends \PDO {
       return true;
     else{
       // Antes: echo $sql; die; (filtraba SQL y mataba la petición).
-      error_log('[DB] insert fallido en '.$table.': '.$this->error);
+      error_log('[DB] insert fallido en '.$table.': '.Pii::maskmessage((string)$this->error));
       return false;
     }
   }
@@ -228,7 +240,8 @@ class db extends \PDO {
         //var_export($pdostmt);
       }
     } catch (\PDOException $e) {
-      error_log('[DB] '.$e->getMessage().' | '.$this->sql);
+      if($this->throwonerror) throw $e;
+      error_log('[DB] '.Pii::maskmessage($e->getMessage()).' | '.$this->sql);
       if(defined('APP_DEBUG') && APP_DEBUG) echo $this->sql.' '.$e->getMessage();
       $this->error = $e->getMessage();
       $this->debug();
@@ -254,7 +267,8 @@ class db extends \PDO {
 //        var_export($this->bind);
       }
     } catch (\PDOException $e) {
-      error_log('[DB] '.$e->getMessage().' | '.$this->sql);
+      if($this->throwonerror) throw $e;
+      error_log('[DB] '.Pii::maskmessage($e->getMessage()).' | '.$this->sql);
       if(defined('APP_DEBUG') && APP_DEBUG) echo $this->sql.' '.$e->getMessage();
       $this->error = $e->getMessage();
       $this->debug();

@@ -134,7 +134,7 @@ class App
           call_user_func_array([$class,$method],$vars);
         }catch(\Throwable $e){
           // El detalle solo al log: el mensaje de una excepción puede llevar SQL, rutas o datos.
-          error_log('[App] '.get_class($e).': '.$e->getMessage().' en '.$e->getFile().':'.$e->getLine());
+          error_log('[App] '.get_class($e).': '.Pii::maskmessage($e->getMessage()).' en '.$e->getFile().':'.$e->getLine());
           $this->render_json(['error' =>"500 - Internal Server Error"],500);
         }
         break;
