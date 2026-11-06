@@ -15,7 +15,7 @@ require_once __DIR__ . '/env.php';
 loadenv(dirname(__DIR__, 2) . '/.env');
 
 // --- Aplicación ---
-if (!defined('APP_NAME'))     define('APP_NAME', env('APP_NAME', 'redGDPS'));
+if (!defined('APP_NAME'))     define('APP_NAME', env('APP_NAME', 'Skeleton'));
 if (!defined('APP_DEBUG'))    define('APP_DEBUG', envbool('APP_DEBUG', false));
 if (!defined('APP_TIMEZONE')) define('APP_TIMEZONE', env('APP_TIMEZONE', 'Europe/Madrid'));
 // Entorno: 'production' SOLO en el servidor real (único que permite el envío real de emails, MailDomain);

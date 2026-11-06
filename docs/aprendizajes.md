@@ -1,4 +1,4 @@
-# Aprendizajes de admin.redgdps
+# Aprendizajes del proyecto de origen
 
 Errores reales encontrados al extraer este esqueleto, por qué ocurrieron y cómo evitarlos. Todos los marcados ✅ están corregidos aquí.
 
@@ -44,12 +44,12 @@ Errores reales encontrados al extraer este esqueleto, por qué ocurrieron y cóm
 | ✅ `layout.html` tenía un `</div>` de más y `foot.html` cerraba `</body></html>` (duplicado). | Ediciones acumuladas. | HTML equilibrado. |
 | ✅ `user_edit.html` marcaba `selected` con `in` (`"1" in "11"` es true). | Uso incorrecto del operador `in` de Twig. | `==`. |
 | ✅ `constants.php` con credenciales y email personal; `.env.example` hablaba de `FTP_PASS` mientras `deploy.php` leía `FTP_PASSWORD`. | Configuración mezclada con código. | `constants.php` versionado leyendo `env()`; `.env.example` con todas las claves y `FTP_PASSWORD`. |
-| ✅ `migrations/apply.php --test` tenía la BBDD de test hardcodeada (`amin_redgdps_test`, con errata). | Valor por defecto a mano. | `TEST_DBNAME` obligatorio desde `tests/.env.local`. |
+| ✅ `migrations/apply.php --test` tenía la BBDD de test hardcodeada (con una errata en el nombre). | Valor por defecto a mano. | `TEST_DBNAME` obligatorio desde `tests/.env.local`. |
 | ✅ `DbSchemaValidityTest` estaba en `tests/Unit` pero necesita BBDD; `tests/bootstrap.php` abría conexión siempre (los unit fallaban sin MySQL). | Sin separación clara. | Movido a `Integration/`; conexión de test bajo demanda y *skip* si no hay BBDD. |
 | ✅ `regen_dbschema.php` reescribía `dbschema.php` entero, perdiendo `ordercol`, `default` y `maincol` puestos a mano. | Generador "desde cero". | Modo "solo añadir" + `--dry-run`. |
 | ✅ `league/flysystem` fijado a `3.0` (con aviso de seguridad) y `spomky-labs/otphp` 10.x (aviso; además `minimum-stability: dev` instalaba una rama dev). | Versiones congeladas sin revisar. | `^3.0`, `^11.4.3` y `minimum-stability: stable`. `composer audit` limpio. |
 
-## Corregidos tras el proyecto redGDPS 2026 (octubre de 2026)
+## Corregidos tras el primer proyecto basado en el esqueleto (octubre de 2026)
 
 Encontrados al llevar a producción un CMS construido sobre este esqueleto (auditoría de seguridad y paso a producción). Cada uno con su test.
 
@@ -67,7 +67,7 @@ Encontrados al llevar a producción un CMS construido sobre este esqueleto (audi
 | ✅ **`deploy.php` no subía nada con `FTP_PATHS=src,public`** (sin barra final). | `isdeployable` solo trataba como carpeta lo acabado en `/`. | Una entrada sin barra vale como fichero exacto o carpeta. Nuevo `deploy_ssh.php`. |
 | ✅ QR del 2FA falso (SVG con el texto de la URI) y `maximebf/debugbar` abandonado. | — | QR real con `bacon/bacon-qr-code`; `php-debugbar/php-debugbar`. |
 
-## Aprendizajes de operación (redGDPS 2026)
+## Aprendizajes de operación (primer proyecto, 2026)
 
 - **Staging nunca contra la BBDD de producción.** Y aunque sea temporal: `APP_ENV=staging` (no `production`) en su `.env`, o enviará emails reales con los datos reales. El modo de envío real exige las dos cosas a la vez.
 - **El `.env` nunca antes que el `.htaccess` que lo protege**: un `.htaccess` antiguo lo serviría como texto plano.
@@ -86,6 +86,6 @@ Encontrados al llevar a producción un CMS construido sobre este esqueleto (audi
 - `ModelBase::validate` hace `echo` + `die` si falta un campo requerido (heredado; los Domain deben validar antes).
 - `ModelBase::update` ignora valores `null`: para poner NULL hace falta un método específico en el Model.
 - `Database` tiene ramas para Oracle/SQLite heredadas y sin uso.
-- Dependencias sin uso en el esqueleto: `aws/aws-sdk-php`, `league/flysystem*` (`Core\Storage`, `Core\S3FILE`) y `mpdf/mpdf` (`Core\PDF`) suman ~70 MB de `vendor/`. En redGDPS se quitaron por no usarse; quitarlas aquí si el proyecto no los necesita.
+- Dependencias sin uso en el esqueleto: `aws/aws-sdk-php`, `league/flysystem*` (`Core\Storage`, `Core\S3FILE`) y `mpdf/mpdf` (`Core\PDF`) suman ~70 MB de `vendor/`. En el primer proyecto se quitaron por no usarse; quitarlas aquí si el proyecto no los necesita.
 - Nomenclatura mixta (minúsculas sin separador vs camelCase en 2FA/Request): pendiente de decidir; ver `CLAUDE.md`.
 - `src/cache/views/` puede contener plantillas compiladas de las pruebas locales (ignoradas por git).

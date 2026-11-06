@@ -11,7 +11,7 @@
 //   - NUNCA borra tablas, columnas ni propiedades, ni sobrescribe las ya fijadas
 //     (maincol, ordercol, primary, default, type json…).
 // Si algo sobra o es incorrecto, se corrige a mano con revisión humana.
-// En admin.redgdps la versión anterior reescribía el fichero entero y se perdían
+// En el proyecto de origen la versión anterior reescribía el fichero entero y se perdían
 // maincol/ordercol/default puestos a mano (ver docs/aprendizajes.md).
 
 $root = realpath(__DIR__ . '/..');

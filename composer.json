@@ -1,6 +1,6 @@
 {
-    "name": "redgdps/skeleton",
-    "description": "Esqueleto PHP (FastRoute + Twig + PDO + ModelBase/dbschema) con login, 2FA, usuarios y permisos. Base del CMS de redGDPS.",
+    "name": "brigantia/skeleton",
+    "description": "Esqueleto PHP (FastRoute + Twig + PDO + ModelBase/dbschema) con login, 2FA, usuarios y permisos.",
     "type": "project",
     "autoload": {
         "psr-4": {

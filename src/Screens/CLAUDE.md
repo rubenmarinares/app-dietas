@@ -18,7 +18,7 @@ Clases `XxxScreen extends App\Core\ScreenBase`. Una ruta = un método público. 
 | JSON | `$this->render_json($data, $codigo)` |
 | CSRF | `\App\Core\Csrf::validate($_POST['csrf_token'] ?? '')` |
 
-No existen `$this->db`, `$this->csrf`, `currentUser` ni `layout/base.html` (la doc de admin.redgdps los mencionaba por error).
+No existen `$this->db`, `$this->csrf`, `currentUser` ni `layout/base.html` (la doc del proyecto de origen los mencionaba por error).
 
 ## Patrón de acción (listado + sidepanel de edición)
 

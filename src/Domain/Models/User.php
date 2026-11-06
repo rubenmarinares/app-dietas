@@ -82,7 +82,7 @@ class User extends Core\ModelBase {
    *
    * Migración transparente: si el hash guardado es md5 heredado y coincide, se
    * reescribe con password_hash en ese mismo login. Así no hay que forzar un
-   * reseteo masivo de contraseñas al migrar usuarios de admin.redgdps.
+   * reseteo masivo de contraseñas al migrar usuarios del proyecto de origen.
    */
   static public function login($db,$email,$pass){
     $row = $db->runone("SELECT users.* FROM users WHERE users.email = ? AND users.status=1 ", [$email]);

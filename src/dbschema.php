@@ -4,7 +4,7 @@
  * tipos, required, length, autoincrement, default, json).
  * REGLA "solo añadir": al regenerar o editar NUNCA se pierden propiedades fijadas
  * a mano (maincol, primary, ordercol, default, type json). Ver docs/aprendizajes.md.
- * Entradas copiadas literalmente de admin.redgdps.
+ * Entradas copiadas literalmente del proyecto de origen.
  */
 $dbschema=[
 

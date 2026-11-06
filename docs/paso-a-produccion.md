@@ -1,6 +1,6 @@
 # Paso a producción (plantilla)
 
-Guía genérica para publicar un proyecto hecho con este esqueleto **en el mismo hosting donde vive la web anterior**, con la mínima caída de servicio y vuelta atrás en minutos. Sale del corte de redGDPS (octubre de 2026). Copiarla a `docs/` del proyecto y concretarla (carpetas, BBDD, crons, delta de datos).
+Guía genérica para publicar un proyecto hecho con este esqueleto **en el mismo hosting donde vive la web anterior**, con la mínima caída de servicio y vuelta atrás en minutos. Sale de un corte real (octubre de 2026). Copiarla a `docs/` del proyecto y concretarla (carpetas, BBDD, crons, delta de datos).
 
 ## Principios
 
@@ -34,5 +34,5 @@ Guía genérica para publicar un proyecto hecho con este esqueleto **en el mismo
 ## Después
 
 - **Vigilar 48 h**: log de errores de Apache y 404 que lleguen desde fuera (decidir qué se recupera de `www_2016/`).
-- **Antes de borrar `www_2016/`**: comprobar que ningún contenido del CMS enlaza a algo que solo esté ahí (en redGDPS faltaban las imágenes de un módulo y una carpeta de subidas antigua). Al borrarla se pierde la vuelta atrás rápida.
+- **Antes de borrar `www_2016/`**: comprobar que ningún contenido del CMS enlaza a algo que solo esté ahí (en el primer corte faltaban las imágenes de un módulo y una carpeta de subidas antigua). Al borrarla se pierde la vuelta atrás rápida.
 - **Rotar credenciales** que hayan pasado por ficheros temporales o chats, y revocar claves SSH de uso puntual.

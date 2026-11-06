@@ -3,7 +3,7 @@
 -- despliegue (no hay tabla de control), así que todo es CREATE ... IF NOT EXISTS /
 -- INSERT IGNORE.
 --
--- En admin.redgdps estas tablas nunca tuvieron CREATE TABLE en migrations/ (existían
+-- En el proyecto de origen estas tablas nunca tuvieron CREATE TABLE en migrations/ (existían
 -- antes del sistema de migraciones). Aquí se derivan de src/dbschema.php y se pliegan
 -- las migraciones de origen 004 (typesuser.permissions), 005 (tablas 2FA y
 -- users.deadline2fa), 006 (totp_secret VARCHAR(128)), 007 y 015 (ampliaciones del

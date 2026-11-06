@@ -1,6 +1,6 @@
-# redgdps-skeleton
+# skeleton
 
-Esqueleto PHP 8.1 extraído de `admin.redgdps`: la capa transversal (arranque, rutas, login + 2FA, usuarios y permisos, layout Twig, ModelBase/dbschema, correo, almacenamiento, herramientas y tests) **sin ningún dominio de negocio**. Es la base del nuevo CMS de la web de redGDPS.
+Esqueleto PHP 8.1 extraído de un panel de administración en producción: la capa transversal (arranque, rutas, login + 2FA, usuarios y permisos, layout Twig, ModelBase/dbschema, correo, almacenamiento, herramientas y tests) **sin ningún dominio de negocio**. Sirve de base para nuevos paneles y CMS.
 
 Stack: FastRoute + Twig 3 + PDO (wrapper propio) + `ModelBase` guiado por `src/dbschema.php`. Sin framework. PSR-4 `App\` → `src/`.
 

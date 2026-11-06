@@ -8,7 +8,7 @@ require_once __DIR__ . '/../src/Config/env.php';
 loadenv(__DIR__ . '/.env.local');
 
 // Constantes de test. Se definen ANTES de constants.php para usar una BBDD aislada.
-if (!defined('DBNAME'))   define('DBNAME',   env('TEST_DBNAME', 'redgdps_skeleton_test'));
+if (!defined('DBNAME'))   define('DBNAME',   env('TEST_DBNAME', 'skeleton_test'));
 if (!defined('USERNAME')) define('USERNAME', env('TEST_DBUSER', 'root'));
 if (!defined('PASSWORD')) define('PASSWORD', env('TEST_DBPASS', ''));
 if (!defined('DNS')) {
@@ -17,14 +17,14 @@ if (!defined('DNS')) {
         . ($testPort !== null && $testPort !== '' ? ';port=' . $testPort : '') . ';charset=utf8mb4');
     unset($testPort);
 }
-if (!defined('APP_NAME'))      define('APP_NAME', 'redGDPS Test');
+if (!defined('APP_NAME'))      define('APP_NAME', 'Skeleton Test');
 if (!defined('APP_DEBUG'))     define('APP_DEBUG', false);
 if (!defined('SMTP_HOST'))     define('SMTP_HOST', 'localhost');
 if (!defined('SMTP_PORT'))     define('SMTP_PORT', 1025);
 if (!defined('SMTP_USER'))     define('SMTP_USER', '');
 if (!defined('SMTP_PASS'))     define('SMTP_PASS', '');
 if (!defined('SMTP_FROM'))     define('SMTP_FROM', 'no-reply@test.local');
-if (!defined('SMTP_FROMNAME')) define('SMTP_FROMNAME', 'redGDPS Test');
+if (!defined('SMTP_FROMNAME')) define('SMTP_FROMNAME', 'Skeleton Test');
 
 // El resto (rutas, storage…) con los valores por defecto de constants.php.
 // No carga el .env de la raíz para valores ya definidos arriba: define() con guardas.
@@ -46,7 +46,7 @@ function testdbavailable(): bool
     if ($available !== null) return $available;
     try {
         $GLOBALS['__testlock'] = new \PDO(DNS, USERNAME, PASSWORD, [\PDO::ATTR_TIMEOUT => 3]);
-        $res = $GLOBALS['__testlock']->query("SELECT GET_LOCK('redgdps_skeleton_tests', 600)")->fetchColumn();
+        $res = $GLOBALS['__testlock']->query("SELECT GET_LOCK('skeleton_tests', 600)")->fetchColumn();
         if ((int) $res !== 1) {
             fwrite(STDERR, "Otra ejecución de tests está usando la BBDD de test. Reintenta cuando termine.\n");
             exit(1);

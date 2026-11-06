@@ -1,6 +1,6 @@
 # Decisiones de arquitectura
 
-Formato: **Decisión** · **Por qué** · **Alternativa descartada**. Heredadas de admin.redgdps salvo que se indique "(esqueleto)".
+Formato: **Decisión** · **Por qué** · **Alternativa descartada**. Heredadas del proyecto de origen salvo que se indique "(esqueleto)".
 
 ## Pila
 
