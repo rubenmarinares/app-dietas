@@ -30,5 +30,6 @@
 # Datos privados de la aplicación (log de emails…); .htaccess sirve 404 en /storage/
 /storage/
 
-# Registro local de skills
+# Configuración local de herramientas (skills, Engram)
 /.atl/
+/.engram/
