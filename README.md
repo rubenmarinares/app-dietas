@@ -11,7 +11,7 @@ composer install
 cp .env.example .env                      # rellenar DB_*, SMTP_*, APP_NAME…
 php migrations/apply.php                  # crea las 6 tablas base + tipo "Administrador"
 php tools/create_admin.php tu@email.es "Nombre" "Apellidos"   # pide la contraseña
-php -S localhost:8000 public/router.php   # desarrollo → http://localhost:8000/app/
+php -S localhost:8000 -t public public/router.php   # desarrollo → http://localhost:8000/app/
 ```
 
 Con Apache: el `DocumentRoot` es la raíz del proyecto; `.htaccess` reescribe `/app/*` a `public/app.php`, el resto a `public/` y bloquea `.env`, claves y carpetas internas.

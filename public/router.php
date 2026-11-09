@@ -1,7 +1,7 @@
 <?php
 /**
  * Router para el servidor embebido de PHP (solo desarrollo), emula el .htaccess:
- *   php -S localhost:8000 public/router.php
+ *   php -S localhost:8000 -t public public/router.php
  * - /assets/... y ficheros existentes en public/ se sirven tal cual.
  * - /app/...  → public/app.php
  * - resto     → public/index.php

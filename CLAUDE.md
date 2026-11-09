@@ -39,7 +39,7 @@ No hay middleware ni contenedor de dependencias: lo transversal está en `App::_
 | Tarea | Comando |
 |---|---|
 | Dependencias | `composer install` |
-| Servidor local | `php -S localhost:8000 public/router.php` → `/app/` |
+| Servidor local | `php -S localhost:8000 -t public public/router.php` → `/app/` |
 | Migraciones | `php migrations/apply.php` (`--test` para la BBDD de test) |
 | Crear admin | `php tools/create_admin.php email "Nombre" "Apellidos"` |
 | Tests | `vendor/bin/phpunit tests/Unit` · `vendor/bin/phpunit` (con BBDD) · `--filter nombreTest` |

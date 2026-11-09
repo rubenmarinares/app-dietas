@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 /**
  * Front controller del panel (/app/…). .htaccess reescribe /app/* aquí.
- * En desarrollo: php -S localhost:8000 public/router.php (ver README).
+ * En desarrollo: php -S localhost:8000 -t public public/router.php (ver README).
  */
 // Errores: visibles solo si APP_DEBUG=1 (se reajusta tras cargar constants en Bootstrap).
 ini_set('display_errors', '0');
